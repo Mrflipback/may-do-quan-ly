@@ -59,6 +59,31 @@ jobs:
       - name: Chuẩn bị Pages
         uses: actions/configure-pages@v5
 
+      - name: Kiểm tra hai khoá Supabase
+        # Bước này cố tình làm hỏng cả lần chạy nếu thiếu khoá.
+        # Không có nó thì GitHub vẫn báo dấu tích xanh, nhưng trang đăng lên
+        # sẽ báo "Chưa cấu hình Supabase" — xanh mà hỏng, rất khó đoán ra.
+        env:
+          U: ${{ secrets.VITE_SUPABASE_URL }}
+          K: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          thieu=0
+          if [ -z "$U" ]; then echo "::error::THIEU secret VITE_SUPABASE_URL"; thieu=1; fi
+          if [ -z "$K" ]; then echo "::error::THIEU secret VITE_SUPABASE_ANON_KEY"; thieu=1; fi
+          if [ "$thieu" = "1" ]; then
+            echo ""
+            echo "CACH SUA:"
+            echo "  Settings > Secrets and variables > Actions"
+            echo "  Phai o tab 'Secrets' (KHONG phai tab 'Variables')"
+            echo "  Bam 'New repository secret' (KHONG phai 'Environment secret')"
+            echo "  Them du HAI cai, ten go y het:"
+            echo "     VITE_SUPABASE_URL"
+            echo "     VITE_SUPABASE_ANON_KEY"
+            echo "  Khai xong quay lai day, bam 'Re-run all jobs'."
+            exit 1
+          fi
+          echo "Da co du hai khoa Supabase."
+
       - name: Đóng gói
         env:
           # Tên kho lấy tự động, khỏi viết cứng. Đổi tên kho cũng không hỏng.
