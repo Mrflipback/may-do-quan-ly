@@ -1,0 +1,589 @@
+@import 'tailwindcss';
+
+/* ------------------------------------------------------------------
+   HỆ MÀU & PHÔNG CHỮ CỦA PHẦN MỀM
+   Đổi mã màu ở đây là đổi màu toàn bộ phần mềm.
+   ------------------------------------------------------------------ */
+@theme {
+  --font-sans: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif;
+  /* Phông chữ cho tiêu đề lớn ở trang khách xem. Chữ có chân, trông
+     đăng đối và sang hơn — đúng kiểu của nghề may đo. */
+  --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+
+  /* Màu chủ đạo: xanh navy sang trọng */
+  --color-brand-50: #eef4fb;
+  --color-brand-100: #d8e6f5;
+  --color-brand-200: #b4cdea;
+  --color-brand-300: #85acdb;
+  --color-brand-400: #5587c7;
+  --color-brand-500: #3568ad;
+  --color-brand-600: #27528f;
+  --color-brand-700: #204274;
+  --color-brand-800: #1d3961;
+  --color-brand-900: #1b3052;
+  --color-brand-950: #121f36;
+
+  /* Nền thẻ, ô nhập, thanh trên cùng. Đổi theo sáng/tối. */
+  --color-paper: #ffffff;
+
+  /* Màu nhấn: vàng đồng */
+  --color-gold-50: #fdf8ec;
+  --color-gold-100: #f8ecc9;
+  --color-gold-200: #f1d892;
+  --color-gold-300: #e8c160;
+  --color-gold-400: #e0b23f;
+  --color-gold-500: #c9962a;
+  --color-gold-600: #a87a1e;
+  --color-gold-700: #86601b;
+}
+
+/* ------------------------------------------------------------------
+   THIẾT LẬP CHUNG
+   ------------------------------------------------------------------ */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-slate-100 text-slate-800 antialiased;
+    font-family: var(--font-sans);
+  }
+
+  /* Viền sáng khi dùng bàn phím Tab - hỗ trợ người khiếm thị */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-brand-500;
+  }
+
+  /* Bỏ nút tăng giảm của ô nhập số */
+  input[type='number']::-webkit-outer-spin-button,
+  input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type='number'] {
+    -moz-appearance: textfield;
+  }
+}
+
+/* ------------------------------------------------------------------
+   HIỆU ỨNG
+   ------------------------------------------------------------------ */
+@keyframes hienLen {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ------------------------------------------------------------------
+   THANH CUỘN GỌN
+   ------------------------------------------------------------------ */
+@layer utilities {
+  .scrollbar-slim {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-slate-300) transparent;
+  }
+  .scrollbar-slim::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .scrollbar-slim::-webkit-scrollbar-thumb {
+    background-color: var(--color-slate-300);
+    border-radius: 9999px;
+  }
+  .scrollbar-slim::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+/* ------------------------------------------------------------------
+   IN ẤN - dùng cho phiếu số đo, phiếu đơn hàng, phiếu thanh toán
+   Khi bấm In, chỉ phần tử .print-area được in ra giấy.
+   ------------------------------------------------------------------ */
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  body {
+    background: #fff !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-area {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    background: #fff !important;
+    color: #000 !important;
+    box-shadow: none !important;
+  }
+
+  .print-area table {
+    page-break-inside: auto;
+  }
+  .print-area tr {
+    page-break-inside: avoid;
+  }
+}
+
+/* ------------------------------------------------------------------
+   CHẾ ĐỘ TỐI
+   ------------------------------------------------------------------
+   Tailwind dịch mọi lớp màu thành biến CSS (bg-slate-100 -> var(--color-slate-100)),
+   nên chỉ cần viết lại bảng màu xám ở đây là CẢ phần mềm đổi sang nền tối,
+   không phải sửa từng màn hình. Thang xám bị lật ngược: số nhỏ vốn là nền
+   sáng nay thành nền tối, số lớn vốn là chữ đen nay thành chữ sáng.
+
+   Khối này cố tình nằm NGOÀI @layer để luôn thắng bảng màu gốc của Tailwind.
+   ------------------------------------------------------------------ */
+:root.toi {
+  color-scheme: dark;
+
+  --color-paper: #1a2231;
+
+  --color-slate-50: #0d1320;
+  --color-slate-100: #131a27;
+  --color-slate-200: #222c3c;
+  --color-slate-300: #32405a;
+  --color-slate-400: #7c8aa5;
+  --color-slate-500: #9aa7bd;
+  --color-slate-600: #b4c0d4;
+  --color-slate-700: #cbd5e6;
+  --color-slate-800: #dde4ef;
+  --color-slate-900: #eef2f8;
+  --color-slate-950: #f8fafc;
+}
+
+/* Giấy in luôn trắng, dù phần mềm đang để nền tối. */
+@media print {
+  :root.toi {
+    color-scheme: light;
+    --color-paper: #ffffff;
+    --color-slate-50: #f8fafc;
+    --color-slate-100: #f1f5f9;
+    --color-slate-200: #e2e8f0;
+    --color-slate-300: #cbd5e1;
+    --color-slate-400: #94a3b8;
+    --color-slate-500: #64748b;
+    --color-slate-600: #475569;
+    --color-slate-700: #334155;
+    --color-slate-800: #1e293b;
+    --color-slate-900: #0f172a;
+    --color-slate-950: #020617;
+  }
+}
+
+/* ------------------------------------------------------------------
+   CHẾ ĐỘ TỐI - CÁC MẢNG MÀU NHẤN
+   ------------------------------------------------------------------
+   Thang xám đã lật ở khối trên. Còn lại là những "viên thuốc" màu nhạt
+   (bg-brand-100, bg-emerald-100…) và chữ màu đậm đi kèm. Không đổi được
+   bằng biến, vì cùng một sắc vừa làm nền nút vừa làm chữ: bg-brand-700 là
+   nền nút xanh, text-brand-700 là chữ liên kết. Nên ở đây ghi đè thẳng
+   LỚP tiện ích, chỉ đúng những lớp cần đổi.
+   ------------------------------------------------------------------ */
+:root.toi .bg-brand-50 { background-color: #16233a; }
+:root.toi .bg-brand-100 { background-color: #1c2e4a; }
+:root.toi .bg-gold-50 { background-color: #2b2412; }
+:root.toi .bg-gold-100 { background-color: #3b3118; }
+:root.toi .bg-emerald-50 { background-color: #10291f; }
+:root.toi .bg-emerald-100 { background-color: #15362a; }
+:root.toi .bg-rose-50 { background-color: #2d1419; }
+:root.toi .bg-rose-100 { background-color: #3c1b22; }
+:root.toi .bg-amber-50 { background-color: #2c2210; }
+:root.toi .bg-amber-100 { background-color: #3b2e15; }
+:root.toi .bg-sky-100 { background-color: #142b3d; }
+:root.toi .bg-violet-50 { background-color: #1f1a33; }
+:root.toi .bg-violet-100 { background-color: #292142; }
+
+/* Chữ đậm trên nền sáng -> chữ nhạt trên nền tối */
+:root.toi .text-brand-600,
+:root.toi .text-brand-700,
+:root.toi .text-brand-800 { color: var(--color-brand-300); }
+:root.toi .text-gold-600,
+:root.toi .text-gold-700,
+:root.toi .text-gold-800,
+:root.toi .text-gold-900 { color: var(--color-gold-300); }
+:root.toi .text-emerald-600,
+:root.toi .text-emerald-700,
+:root.toi .text-emerald-800 { color: #6ee7b7; }
+:root.toi .text-rose-600,
+:root.toi .text-rose-700,
+:root.toi .text-rose-800 { color: #fda4af; }
+:root.toi .text-amber-600,
+:root.toi .text-amber-700,
+:root.toi .text-amber-800 { color: #fcd34d; }
+:root.toi .text-sky-800 { color: #7dd3fc; }
+:root.toi .text-violet-600,
+:root.toi .text-violet-800 { color: #c4b5fd; }
+
+/* Nút đỏ "nguy hiểm" vẫn phải là nút đỏ đặc, không phải chữ hồng nhạt */
+:root.toi .bg-rose-600 { background-color: #be123c; }
+:root.toi .bg-rose-600.text-white,
+:root.toi .text-white { color: #ffffff; }
+
+/* Giấy in: trả mọi thứ về đúng màu sáng */
+@media print {
+  :root.toi .bg-brand-50 { background-color: #eef4fb; }
+  :root.toi .bg-brand-100 { background-color: #d8e6f5; }
+  :root.toi .bg-emerald-50 { background-color: #ecfdf5; }
+  :root.toi .bg-emerald-100 { background-color: #d1fae5; }
+  :root.toi .bg-rose-50 { background-color: #fff1f2; }
+  :root.toi .bg-rose-100 { background-color: #ffe4e6; }
+  :root.toi .bg-amber-50 { background-color: #fffbeb; }
+  :root.toi .bg-amber-100 { background-color: #fef3c7; }
+  :root.toi .bg-gold-50 { background-color: #fdf8ec; }
+  :root.toi .bg-gold-100 { background-color: #f8ecc9; }
+  :root.toi .text-brand-600,
+  :root.toi .text-brand-700,
+  :root.toi .text-brand-800 { color: #204274; }
+  :root.toi .text-emerald-600,
+  :root.toi .text-emerald-700,
+  :root.toi .text-emerald-800 { color: #047857; }
+  :root.toi .text-rose-600,
+  :root.toi .text-rose-700,
+  :root.toi .text-rose-800 { color: #be123c; }
+  :root.toi .text-gold-600,
+  :root.toi .text-gold-700 { color: #86601b; }
+}
+
+
+/* ==================================================================
+   TUỲ CHỈNH GIAO DIỆN
+   ------------------------------------------------------------------
+   Mọi lựa chọn trong mục "Giao diện" của phần mềm chỉ gắn thuộc tính
+   lên thẻ <html>; phần việc thật nằm hết ở đây.
+
+      <html class="toi" data-mau="ngoc" data-co-chu="lon"
+            data-bo="tron" data-hieu-ung="nay" data-toc-do="vua">
+
+   Các khối này cố tình nằm NGOÀI @layer để luôn thắng bảng màu gốc.
+   ================================================================== */
+
+/* --------------------------- 1. MÀU CHỦ ĐẠO ---------------------------
+   Đổi 11 mã màu là đổi nút bấm, thanh bên trái, liên kết, biểu đồ…
+   của cả phần mềm, vì Tailwind dịch bg-brand-700 thành
+   var(--color-brand-700).
+   --------------------------------------------------------------------- */
+
+:root[data-mau='ngoc'] {
+  --color-brand-50: #effbf9;
+  --color-brand-100: #cdf3ec;
+  --color-brand-200: #9ee6da;
+  --color-brand-300: #64d2c3;
+  --color-brand-400: #35b7a7;
+  --color-brand-500: #1b998b;
+  --color-brand-600: #147c72;
+  --color-brand-700: #13635d;
+  --color-brand-800: #144f4b;
+  --color-brand-900: #14423f;
+  --color-brand-950: #052726;
+}
+
+:root[data-mau='rung'] {
+  --color-brand-50: #f0f8ee;
+  --color-brand-100: #d9eed3;
+  --color-brand-200: #b4dca9;
+  --color-brand-300: #86c277;
+  --color-brand-400: #5da64d;
+  --color-brand-500: #3f8a31;
+  --color-brand-600: #2e6e25;
+  --color-brand-700: #26571f;
+  --color-brand-800: #21461d;
+  --color-brand-900: #1d3b1a;
+  --color-brand-950: #0c200b;
+}
+
+:root[data-mau='tia'] {
+  --color-brand-50: #f4f2fd;
+  --color-brand-100: #e8e3fb;
+  --color-brand-200: #d3cbf7;
+  --color-brand-300: #b4a5f0;
+  --color-brand-400: #9277e6;
+  --color-brand-500: #7650d9;
+  --color-brand-600: #6538c2;
+  --color-brand-700: #552ca3;
+  --color-brand-800: #472786;
+  --color-brand-900: #3c246d;
+  --color-brand-950: #251449;
+}
+
+:root[data-mau='gach'] {
+  --color-brand-50: #fdf4f0;
+  --color-brand-100: #fbe4da;
+  --color-brand-200: #f6c7b4;
+  --color-brand-300: #eda184;
+  --color-brand-400: #e27553;
+  --color-brand-500: #d25633;
+  --color-brand-600: #bb4128;
+  --color-brand-700: #9b3123;
+  --color-brand-800: #7f2b22;
+  --color-brand-900: #6a271f;
+  --color-brand-950: #39110c;
+}
+
+:root[data-mau='than'] {
+  --color-brand-50: #f4f5f7;
+  --color-brand-100: #e4e7eb;
+  --color-brand-200: #cacfd7;
+  --color-brand-300: #a4acb9;
+  --color-brand-400: #788395;
+  --color-brand-500: #5c6779;
+  --color-brand-600: #4a5364;
+  --color-brand-700: #3d4452;
+  --color-brand-800: #353a46;
+  --color-brand-900: #2f333d;
+  --color-brand-950: #1b1e25;
+}
+
+/* Nền tối + các màu chủ đạo khác: pha thẳng từ màu đang chọn, nên đổi
+   màu chủ đạo nào thì những "viên thuốc" nhạt cũng đổi theo, không phải
+   viết tay từng bảng màu một. */
+:root.toi .bg-brand-50 {
+  background-color: color-mix(in srgb, var(--color-brand-500) 16%, #101828);
+}
+:root.toi .bg-brand-100 {
+  background-color: color-mix(in srgb, var(--color-brand-500) 26%, #101828);
+}
+
+/* ---------------------------- 2. CỠ CHỮ ----------------------------
+   Tailwind đo mọi thứ bằng rem, nên đổi cỡ chữ gốc là cả phần mềm
+   to nhỏ theo — chữ, nút bấm, khoảng cách đều giãn đều.
+   ------------------------------------------------------------------- */
+
+:root[data-co-chu='nho'] {
+  font-size: 14.5px;
+}
+:root[data-co-chu='vua'] {
+  font-size: 16px;
+}
+:root[data-co-chu='lon'] {
+  font-size: 17.5px;
+}
+
+/* Giấy in luôn giữ cỡ chuẩn, không to nhỏ theo màn hình */
+@media print {
+  :root[data-co-chu='nho'],
+  :root[data-co-chu='lon'] {
+    font-size: 16px;
+  }
+}
+
+/* ---------------------------- 3. BO GÓC ---------------------------- */
+
+:root[data-bo='vuong'] {
+  --radius-sm: 0.125rem;
+  --radius-md: 0.125rem;
+  --radius-lg: 0.1875rem;
+  --radius-xl: 0.25rem;
+  --radius-2xl: 0.3125rem;
+  --radius-3xl: 0.375rem;
+}
+
+:root[data-bo='tron'] {
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1.125rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+}
+
+/* --------------------------- 4. HIỆU ỨNG ---------------------------
+   Một lớp duy nhất .hieu-ung. Chạy hiệu ứng nào, nhanh chậm ra sao là
+   do hai biến --hu-ten và --hu-giay quyết định, mà hai biến đó đổi
+   theo thuộc tính trên thẻ <html>.
+   ------------------------------------------------------------------- */
+
+@keyframes huMoDan {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes huTruotLen {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes huTruotNgang {
+  from {
+    opacity: 0;
+    transform: translateX(-22px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes huPhongTo {
+  from {
+    opacity: 0;
+    transform: scale(0.955);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes huNay {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(12px);
+  }
+  55% {
+    opacity: 1;
+    transform: scale(1.035) translateY(-4px);
+  }
+  78% {
+    transform: scale(0.99) translateY(1px);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+:root {
+  --hu-ten: huTruotLen;
+  --hu-giay: 260ms;
+  --hu-nhip: cubic-bezier(0.22, 0.8, 0.36, 1);
+}
+
+:root[data-hieu-ung='tat'] {
+  --hu-ten: none;
+}
+:root[data-hieu-ung='mo_dan'] {
+  --hu-ten: huMoDan;
+}
+:root[data-hieu-ung='truot_len'] {
+  --hu-ten: huTruotLen;
+}
+:root[data-hieu-ung='truot_ngang'] {
+  --hu-ten: huTruotNgang;
+}
+:root[data-hieu-ung='phong_to'] {
+  --hu-ten: huPhongTo;
+}
+:root[data-hieu-ung='nay'] {
+  --hu-ten: huNay;
+  --hu-nhip: cubic-bezier(0.3, 1.3, 0.5, 1);
+}
+
+:root[data-toc-do='cham'] {
+  --hu-giay: 460ms;
+}
+:root[data-toc-do='vua'] {
+  --hu-giay: 260ms;
+}
+:root[data-toc-do='nhanh'] {
+  --hu-giay: 130ms;
+}
+
+/* Viet tach tung dong, KHONG dung loi viet gop "animation: ...".
+   Ly do: "none" vua la ten hieu ung hop le vua la kieu to mau hop le, nen
+   khi tat hieu ung trinh duyet hieu nham "none" la kieu to mau roi lay chu
+   "both" lam ten hieu ung. Tach ra thi khong con nham duoc. */
+.hieu-ung {
+  animation-name: var(--hu-ten);
+  animation-duration: var(--hu-giay);
+  animation-timing-function: var(--hu-nhip);
+  animation-fill-mode: both;
+}
+
+/* Tắt hiệu ứng thì tắt cả những chuyển màu li ti khi rê chuột, cho máy
+   yếu chạy nhẹ hẳn. Vòng tròn chờ vẫn phải quay, nếu không người dùng
+   tưởng phần mềm treo. */
+:root[data-hieu-ung='tat'] *:not(.animate-spin):not(.animate-pulse) {
+  transition-duration: 1ms !important;
+}
+
+/* Máy đang bật "giảm chuyển động" (Windows › Trợ năng › Hiệu ứng hình
+   ảnh) thì mặc định không chạy hiệu ứng. Trừ khi người dùng đã tự tay
+   chọn một hiệu ứng trong mục Giao diện — lúc đó nghe theo họ. */
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-hieu-ung-tay='1']) {
+    --hu-ten: none;
+  }
+}
+
+/* In giấy thì không hiệu ứng gì hết */
+@media print {
+  .hieu-ung {
+    animation: none !important;
+  }
+}
+
+
+/* ------------------------------------------------------------------
+   HIỆN DẦN KHI CUỘN TỚI — dùng ở trang khách xem
+   ------------------------------------------------------------------
+   Nội dung đứng yên mờ mờ, cuộn tới đâu nổi lên đến đó. Theo đúng
+   lựa chọn trong mục Giao diện: tắt hiệu ứng thì hiện ra ngay lập tức.
+   ------------------------------------------------------------------ */
+.lo-dan {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.7s var(--hu-nhip),
+    transform 0.7s var(--hu-nhip);
+}
+
+.lo-dan.hien {
+  opacity: 1;
+  transform: none;
+}
+
+/* Tắt hiệu ứng, hoặc in ra giấy: hiện hết, không chờ cuộn */
+:root[data-hieu-ung='tat'] .lo-dan {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+@media print {
+  .lo-dan {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-hieu-ung-tay='1']) .lo-dan {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Vân lưới mờ ở nền đầu trang, cho đỡ phẳng */
+.van-luoi {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
+}

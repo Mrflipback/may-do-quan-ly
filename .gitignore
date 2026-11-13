@@ -1,0 +1,32 @@
+# Thư viện
+node_modules
+
+# Kết quả build
+dist
+dist-ssr
+*.local
+
+# Biến môi trường - TUYỆT ĐỐI KHÔNG ĐƯA LÊN GIT
+.env
+.env.local
+.env.*.local
+
+# Log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs
+*.log
+
+# Trình soạn thảo
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+Thumbs.db
+
+# Vercel
+.vercel
+
+# Sao lưu dữ liệu xuất ra từ phần mềm
+backups/

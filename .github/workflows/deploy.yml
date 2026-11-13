@@ -1,0 +1,90 @@
+# =====================================================================
+#  ĐƯA PHẦN MỀM LÊN GITHUB PAGES
+# ---------------------------------------------------------------------
+#  Mỗi lần bạn đẩy mã lên nhánh main, GitHub tự đóng gói và đăng lại.
+#  Bạn không phải cài gì trên máy, không phải tự build.
+#
+#  PHẢI LÀM BẰNG TAY MỘT LẦN DUY NHẤT (nếu quên, chạy sẽ báo đỏ):
+#    1. Settings > Pages > Source = "GitHub Actions"
+#       (KHÔNG phải "Deploy from a branch")
+#    2. Settings > Secrets and variables > Actions > New repository secret
+#       thêm hai cái:  VITE_SUPABASE_URL  và  VITE_SUPABASE_ANON_KEY
+#       Giá trị lấy trong file .env ở thư mục dự án trên máy bạn.
+#
+#  NÓI THẬT: hai "secret" này KHÔNG hề được giấu. Mọi biến VITE_* đều bị
+#  nhúng thẳng vào file JS mà trình duyệt tải về, ai cũng đọc được. Dùng
+#  secret chỉ để khỏi phải để khoá trong mã nguồn. Thứ thật sự giữ dữ liệu
+#  là Row Level Security trong supabase/01_schema.sql.
+# =====================================================================
+
+name: Đăng lên GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # Cho phép bấm chạy tay trong tab Actions
+  workflow_dispatch:
+
+# Quyền tối thiểu cần có:
+#   contents: read   -> tải mã nguồn về để đóng gói
+#   pages: write     -> ghi bản đã đóng gói lên Pages
+#   id-token: write  -> bắt buộc với deploy-pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Đẩy mã liên tục thì xếp hàng, không huỷ lần đang đăng dở
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  dong-goi:
+    name: Đóng gói
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lấy mã nguồn
+        uses: actions/checkout@v4
+
+      - name: Cài Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Cài thư viện
+        run: npm ci
+
+      - name: Chuẩn bị Pages
+        uses: actions/configure-pages@v5
+
+      - name: Đóng gói
+        env:
+          # Tên kho lấy tự động, khỏi viết cứng. Đổi tên kho cũng không hỏng.
+          # Dấu gạch đầu và cuối là bắt buộc.
+          BASE_PATH: /${{ github.event.repository.name }}/
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: npm run build
+
+      - name: Chặn Jekyll
+        # GitHub bỏ qua thư mục bắt đầu bằng dấu gạch dưới nếu thiếu file này
+        run: touch dist/.nojekyll
+
+      - name: Nộp bản đã đóng gói
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  dang-len:
+    name: Đăng lên
+    needs: dong-goi
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.ket-qua.outputs.page_url }}
+    steps:
+      - name: Đăng
+        id: ket-qua
+        uses: actions/deploy-pages@v4

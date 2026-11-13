@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Phần mềm quản lý tiệm may đo: khách hàng, số đo, đơn hàng, kho vải, công nợ và báo cáo." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      // Khoi phuc duong dan sau khi 404.html day ve. Xem giai thich day du
+      // trong public/404.html. Chay cang som cang tot, truoc khi ve giao dien.
+      // Chay o goc "/" (tren may, tren Vercel) thi doan nay khong lam gi ca.
+      (function khoiPhucDuongDan(l) {
+        if (l.search[1] !== '/') return;
+        var that = l.search
+          .slice(1)
+          .split('&')
+          .map(function (phan) {
+            return phan.replace(/~and~/g, '&');
+          })
+          .join('?');
+        window.history.replaceState(null, null, l.pathname.slice(0, -1) + that + l.hash);
+      })(window.location);
+    </script>
+    <title>May Đo Quản Lý Pro</title>
+    <script>
+      // Dat nen sang/toi, mau chu dao, co chu... TRUOC khi ve, de khong nhay
+      // mot cai khi moi mo phan mem.
+      (function () {
+        try {
+          var g = document.documentElement;
+          var o = {};
+          try { o = JSON.parse(localStorage.getItem('may-do-giao-dien-v2')) || {}; } catch (e) {}
+          var c = o.che || localStorage.getItem('may-do-giao-dien') || 'theo_may';
+          var toi = c === 'toi' || (c === 'theo_may' &&
+            window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          if (toi) g.classList.add('toi');
+          g.setAttribute('data-mau', o.mau || 'navy');
+          g.setAttribute('data-co-chu', o.coChu || 'vua');
+          g.setAttribute('data-bo', o.bo || 'vua');
+          g.setAttribute('data-hieu-ung', o.hieuUng || 'truot_len');
+          g.setAttribute('data-toc-do', o.tocDo || 'vua');
+          if (o.tuChonHieuUng === true) g.setAttribute('data-hieu-ung-tay', '1');
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

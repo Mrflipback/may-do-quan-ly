@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>Đang mở trang…</title>
+    <style>
+      body {
+        margin: 0;
+        display: grid;
+        place-items: center;
+        min-height: 100vh;
+        background: #131a27;
+        color: #9aa7bd;
+        font-family: system-ui, -apple-system, sans-serif;
+        font-size: 14px;
+      }
+    </style>
+    <script>
+      /* ================================================================
+         MẸO GIỮ ĐỊA CHỈ SẠCH TRÊN GITHUB PAGES
+
+         GitHub Pages là máy chủ tĩnh thuần: nó chỉ biết trả về file có
+         thật. Vào thẳng https://tiemmay.github.io/may-do/don-hang thì nó
+         không thấy file nào tên "don-hang" nên trả về chính trang này.
+
+         Trang này ghi lại đường dẫn vừa bị hụt vào phần truy vấn rồi quay
+         về trang chủ:
+             /may-do/don-hang     ->   /may-do/?/don-hang
+         Sau đó đoạn script trong index.html khôi phục lại đường dẫn thật.
+         Người dùng chỉ thấy trang nháy một cái rồi vào đúng chỗ.
+
+         BẮT BUỘC giữ nguyên phần sau dấu # (l.hash). Link đặt lại mật
+         khẩu của Supabase có dạng .../dang-nhap#access_token=... — mất
+         phần đó là không đặt lại được mật khẩu.
+
+         soDoanGiuLai = số đoạn đường dẫn thuộc về chỗ ở của trang:
+             1  khi trang nằm trong thư mục con, ví dụ /may-do/   <- đang dùng
+             0  khi trang nằm ở gốc tên miền (tên miền riêng)
+         ================================================================ */
+      (function () {
+        var soDoanGiuLai = 1
+        var l = window.location
+        l.replace(
+          l.protocol +
+            '//' +
+            l.hostname +
+            (l.port ? ':' + l.port : '') +
+            l.pathname
+              .split('/')
+              .slice(0, 1 + soDoanGiuLai)
+              .join('/') +
+            '/?/' +
+            l.pathname
+              .slice(1)
+              .split('/')
+              .slice(soDoanGiuLai)
+              .join('/')
+              .replace(/&/g, '~and~') +
+            (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+            l.hash,
+        )
+      })()
+    </script>
+  </head>
+  <body>
+    <p>Đang mở trang…</p>
+  </body>
+</html>
