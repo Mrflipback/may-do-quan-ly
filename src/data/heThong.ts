@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { KHOA, queryClient } from './chung'
+import { xoaBanNhoTiem } from './thongTinTiem'
 import type { CaiDat, DiemDoanhThu, NguoiDung, ThongKeTongQuan, VaiTro } from '@/types'
 
 /* ------------------------- Bảng điều khiển ------------------------- */
@@ -65,6 +66,10 @@ export function useLuuCaiDat() {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: KHOA.caiDat })
+      // Trang giới thiệu nhớ thông tin tiệm 6 tiếng để đỡ gọi Supabase.
+      // Vừa sửa xong thì phải vuột bản nhớ đi, không thì chủ tiệm bấm
+      // "Xem trang" lại thấy bản cũ, tưởng lưu hỏng.
+      xoaBanNhoTiem()
     },
   })
 }

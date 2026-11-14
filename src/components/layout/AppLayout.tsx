@@ -5,6 +5,9 @@ import { Topbar } from './Topbar'
 import { useAuth } from '@/auth/AuthProvider'
 import { useCaiDat } from '@/data/heThong'
 import { DangTaiToanTrang } from '@/components/BaoVe'
+import { KhoaManHinh } from '@/components/KhoaManHinh'
+import { useThongBao } from '@/components/ui/ThongBao'
+import { chanDevTools } from '@/lib/chanDevTools'
 import { useT } from '@/i18n'
 
 export function AppLayout() {
@@ -13,6 +16,18 @@ export function AppLayout() {
   const { hoSo } = useAuth()
   const { data: caiDat } = useCaiDat()
   const { t: dich } = useT()
+  const tb = useThongBao()
+
+  /* Nuốt vài phím tắt quen tay nếu chủ tiệm bật mục đó trong Cài đặt.
+     Đây là gờ giảm tốc, không phải bảo mật — đọc đầu file
+     src/lib/chanDevTools.ts trước khi đổi gì ở đây. */
+  const chanCongCu = caiDat?.chan_devtools === '1'
+  useEffect(() => {
+    chanDevTools(chanCongCu, () =>
+      tb.tin('Phần này đã khoá. Cần xem kỹ thì hỏi chủ tiệm.'),
+    )
+    return () => chanDevTools(false)
+  }, [chanCongCu, tb])
 
   // Chuyển trang thì tự đóng menu trên điện thoại
   useEffect(() => {
@@ -26,6 +41,7 @@ export function AppLayout() {
 
   return (
     <div className="min-h-dvh bg-slate-100">
+      <KhoaManHinh />
       <Sidebar
         vaiTro={hoSo.vai_tro}
         tenTiem={tenTiem}

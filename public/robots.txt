@@ -1,0 +1,117 @@
+# =====================================================================
+#  MAY ĐO QUẢN LÝ PRO — QUY ƯỚC CHO BOT
+# ---------------------------------------------------------------------
+#  File này là MỘT TẤM BIỂN, KHÔNG PHẢI CÁI KHOÁ.
+#
+#  Bot tử tế (Google, Bing, Cốc Cốc, các công ty AI lớn) đọc file này
+#  rồi tự giác làm theo. Bot xấu thì bỏ qua, vì chẳng có gì ép được nó.
+#
+#  Nên đừng bao giờ dựa vào file này để giấu thứ gì. Thứ cần giấu thì
+#  phải nằm sau đăng nhập và Row Level Security — như toàn bộ dữ liệu
+#  khách hàng, đơn hàng, tiền nong của phần mềm này.
+# =====================================================================
+
+
+# ---------------------------------------------------------------------
+#  1. MÁY TÌM KIẾM — MỞ CỬA
+#  Tiệm may là chuyện địa phương. Khách gõ "may đo gần đây" mà không ra
+#  tiệm mình thì mất khách thật. Nên để máy tìm kiếm vào thoải mái.
+# ---------------------------------------------------------------------
+User-agent: Googlebot
+User-agent: Bingbot
+User-agent: coccocbot-web
+User-agent: DuckDuckBot
+Allow: /
+Disallow: /dang-nhap
+
+
+# ---------------------------------------------------------------------
+#  2. BOT CÀO NỘI DUNG CHO AI — MỜI RA
+#  Mấy con này gom nội dung trang web để huấn luyện mô hình. Không mang
+#  lại khách nào cho tiệm, nên không có lý do gì cho vào.
+#  Chúng đều có tiếng là tôn trọng file này.
+# ---------------------------------------------------------------------
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-Web
+User-agent: anthropic-ai
+User-agent: Google-Extended
+User-agent: PerplexityBot
+User-agent: Applebot-Extended
+User-agent: CCBot
+User-agent: Bytespider
+User-agent: Amazonbot
+User-agent: FacebookBot
+User-agent: meta-externalagent
+User-agent: cohere-ai
+User-agent: Diffbot
+User-agent: Omgilibot
+User-agent: Timpibot
+User-agent: ImagesiftBot
+Disallow: /
+
+
+# ---------------------------------------------------------------------
+#  3. BOT CÀO HÀNG LOẠT — MỜI RA
+#  Mấy công cụ chuyên dò toàn bộ một trang web. Hay bị dùng để hút số
+#  điện thoại và theo dõi giá của đối thủ.
+# ---------------------------------------------------------------------
+User-agent: AhrefsBot
+User-agent: SemrushBot
+User-agent: MJ12bot
+User-agent: DotBot
+User-agent: DataForSeoBot
+User-agent: BLEXBot
+User-agent: PetalBot
+User-agent: SeekportBot
+User-agent: serpstatbot
+User-agent: ZoominfoBot
+Disallow: /
+
+
+# ---------------------------------------------------------------------
+#  4. CÁI MỒI
+# ---------------------------------------------------------------------
+#  Dòng Disallow ngay dưới đây là cố ý.
+#
+#  Bot tử tế đọc dòng này xong thì tránh ra — đúng như nó được dạy.
+#  Bot cào và công cụ dò quét thì làm ngược lại: chúng moi robots.txt
+#  để tìm xem chủ trang đang giấu gì, rồi lao thẳng vào chỗ bị cấm.
+#
+#  Nên dòng này là cái sàng: chỉ đúng loại tò mò mới đi tới đó.
+#  Trong đó không có dữ liệu gì cả, chỉ có chữ để đọc.
+#
+#  Nói cho rõ: cái này KHÔNG chặn được ai. GitHub Pages không có máy
+#  chủ nên không biết ai đã vào, cũng không làm gì được họ. Nó là một
+#  mẩu giấy nhét đúng chỗ người tò mò sẽ mò tới, không hơn.
+#
+#  CHÚ Ý KHI SỬA FILE NÀY: dòng Disallow của cái mồi phải nằm CHUNG
+#  khối "User-agent: *" với mấy dòng chặn phần quản lý ở dưới. Tách ra
+#  thành hai khối "User-agent: *" là hỏng: nhiều bộ đọc robots chỉ lấy
+#  khối ĐẦU TIÊN rồi bỏ qua phần sau — lúc đó mất sạch phần chặn
+#  thật, chỉ còn mỗi cái mồi.
+# ---------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------
+#  5. KHỐI CHUNG CHO MỌI BOT CÒN LẠI
+#  Phần quản lý vốn đã đòi đăng nhập, bot vào cũng chỉ thấy màn hình
+#  đăng nhập. Chặn ở đây để khỏi hiện lên kết quả tìm kiếm, trông kỳ.
+# ---------------------------------------------------------------------
+User-agent: *
+Allow: /
+Allow: /tiem
+Disallow: /robots1.txt
+Disallow: /dang-nhap
+Disallow: /khach-hang
+Disallow: /so-do
+Disallow: /don-hang
+Disallow: /kho
+Disallow: /thanh-toan
+Disallow: /bao-cao
+Disallow: /nhat-ky
+Disallow: /in-phieu
+Disallow: /cai-dat
+Disallow: /giao-dien

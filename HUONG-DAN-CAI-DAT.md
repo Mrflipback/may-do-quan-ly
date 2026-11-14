@@ -111,6 +111,104 @@ rồi vào Cài đặt đặt lại từ đầu.
 > **Chạy file 11 xong là mật khẩu cũ hết giá trị.** Cách băm đã đổi, mà băm là
 > đường một chiều nên không chuyển được. Vào Cài đặt đặt lại một lần.
 
+### Khoá màn hình khi để không
+
+**Cài đặt › Khoá máy khi để không.** Không đụng chuột gõ phím quá số phút
+bạn chọn thì phần mềm che màn hình lại, phải gõ **mật khẩu đăng nhập** mới
+làm tiếp. Việc đang làm dở vẫn còn nguyên — khác với đăng xuất hẳn.
+
+Bấm F5 lúc đang khoá cũng không thoát ra được. Quên mật khẩu thì bấm
+**"Không phải tôi — đăng xuất"**.
+
+Cài đặt này áp dụng cho **mọi máy trong tiệm**, không riêng máy của chủ.
+Không cần chạy SQL gì cho phần này.
+
+### Nuốt phím tắt mở công cụ lập trình
+
+Cùng chỗ ở trên có một ô tích: bật lên thì F12, Ctrl+Shift+I và Ctrl+U
+không ăn gì nữa.
+
+> **Nói thẳng:** ô này chặn người tiện tay, không chặn người cố tình. Ai biết
+> việc vẫn mở công cụ qua menu của trình duyệt trong ba giây, hoặc bỏ qua
+> trình duyệt luôn mà gọi thẳng máy chủ. Mã nguồn phần mềm cũng đang công khai
+> trên GitHub. **Thứ thật sự giữ dữ liệu là phân quyền ở máy chủ và mật khẩu
+> xoá**, không phải ô này. Bật cho đỡ ngứa mắt thì được, đừng vì có nó mà yên
+> tâm hơn.
+
+### Bot cào trang web
+
+Trang `/tiệm` ai cũng mở được, nên bot cũng ghé. Phần mềm có sẵn mấy lớp:
+
+**1. Bot thường không lấy được gì.** Toàn bộ trang được vẽ bằng JavaScript
+sau khi tải về. Bot kiểu `curl` chỉ nhận được một cái hộp rỗng, không có
+một chữ nào, không có số điện thoại. Chỉ bot chạy hẳn một trình duyệt ẩn
+mới thấy — loại đó tốn kém hơn nhiều.
+
+**2. File `public/robots.txt`** nói cho bot biết chỗ nào được vào:
+- **Mở** cho Google, Bing, Cốc Cốc — để khách tìm ra tiệm
+- **Chặn** bot cào nội dung cho AI (GPTBot, ClaudeBot, CCBot…) và bot cào
+  hàng loạt (AhrefsBot, SemrushBot…)
+- **Chặn** mọi đường dẫn của phần quản lý khỏi kết quả tìm kiếm
+
+> Đây là **tấm biển, không phải cái khoá**. Bot tử tế tự giác làm theo, bot
+> xấu bỏ qua. Muốn thêm hoặc bớt bot thì sửa thẳng file đó, có chú thích
+> tiếng Việt đầy đủ bên trong.
+
+**3. Nhớ lại thông tin tiệm 6 tiếng.** Khách xem đi xem lại, hay bot quay
+lại nhiều lần, đều không gọi Supabase nữa — để không ai đốt hết gói miễn
+phí của bạn.
+
+> **Hệ quả cần biết:** sửa thông tin tiệm xong, khách đã ghé trang từ trước
+> có thể còn thấy bản cũ tới nửa ngày. Máy của chính bạn thì cập nhật ngay
+> sau khi bấm Lưu.
+
+### Cái mồi `robots1.txt`
+
+Trong `robots.txt` có một dòng `Disallow: /robots1.txt`. Dòng đó **cố ý**.
+
+- Bot tử tế đọc thấy "đừng vào" thì tránh ra
+- Bot cào và công cụ dò quét thì làm ngược: chúng moi `robots.txt` để xem
+  chủ trang đang giấu gì, rồi lao thẳng vào chỗ bị cấm
+- Người tò mò mở `robots.txt` cũng thấy và gõ thử
+
+Tức là chỉ đúng ba loại đó mở file `robots1.txt`. Trong đó **không có dữ
+liệu gì cả** — chỉ có mấy câu nghịch lý, một lời nhắn gửi bot AI, một
+tuyên bố không cho phép thu thập tự động (tiếng Việt và tiếng Anh), và một
+lời mời ghé tiệm may đồ.
+
+> **Nói cho rõ: cái này không chặn được ai.** GitHub Pages không có máy chủ
+> nên bạn không biết ai đã mở, cũng không làm gì được họ. Nó là một mẩu
+> giấy nhét đúng chỗ người tò mò sẽ mò tới, không hơn. Đổi lại nó cũng
+> không hại gì: file riêng, không phải chữ ẩn nhét vào trang, nên Google
+> không coi là gian lận và không phạt thứ hạng.
+
+**Nếu bạn sửa `robots.txt`:** dòng `Disallow: /robots1.txt` phải nằm **chung
+khối `User-agent: *`** với mấy dòng chặn phần quản lý. Tách ra thành hai
+khối `User-agent: *` là hỏng — nhiều bộ đọc robots chỉ lấy khối đầu tiên
+rồi bỏ qua phần sau, lúc đó mất sạch phần chặn thật.
+
+### Thứ thật sự đưa khách tới tiệm
+
+Nói thật: trang web vẽ bằng JavaScript thì Google lập chỉ mục kém. Với một
+tiệm may, thứ đưa khách tới **không phải trang web** mà là **Google Business
+Profile** (Hồ sơ Doanh nghiệp trên Google) — miễn phí, tự khai được, hiện lên
+Google Maps khi khách gõ "may đo gần đây". Để địa chỉ trang web này vào đó
+làm mục giới thiệu.
+
+### Muốn chặn bot thật sự thì cần gì
+
+GitHub Pages **không có máy chủ** — nó chỉ là cái kệ để file. Không chặn được
+IP, không giới hạn được số lần gọi, không bắt giải CAPTCHA được.
+
+Muốn chặn thật thì phải có một lớp đứng trước. Cách phổ biến:
+
+1. Mua một tên miền (khoảng 200–300 nghìn một năm)
+2. Đưa tên miền đó qua **Cloudflare** (gói miễn phí cũng được)
+3. Bật **Bot Fight Mode** trong Cloudflare
+
+Lúc đó Cloudflare đứng chắn ở giữa, chặn được bot thật sự. Không cần sửa
+một dòng mã nào cả. Khi nào bạn mua tên miền thì bảo tôi hướng dẫn.
+
 ### Giao diện riêng cho từng người
 
 Mục **Giao diện** trên thanh menu cho phép mỗi người tự chọn nền sáng/tối, màu chủ
@@ -371,6 +469,9 @@ Vercel tự động cập nhật trang web sau khoảng 1 phút. Không phải l
 | Xoá tài khoản báo *không tìm thấy hàm* | Chưa chạy `11_khoa_xoa_tren_may_chu.sql` |
 | Cài đặt báo "Chưa đặt" dù đã từng đặt mật khẩu xoá | Đúng như vậy sau khi chạy file 11. Đặt lại một lần |
 | "Đã gõ sai quá nhiều lần" | Đợi 15 phút. Muốn mở sớm thì chạy `update public.khoa_xoa set lan_sai = 0, khoa_den = null;` |
+| Màn hình cứ bị khoá liên tục | Vào **Cài đặt › Khoá máy khi để không**, chọn mốc lâu hơn hoặc "Không khoá" |
+| Khoá màn hình mà quên mật khẩu đăng nhập | Bấm "Không phải tôi — đăng xuất", rồi dùng **Quên mật khẩu** ở màn hình đăng nhập |
+| Bật nuốt phím rồi giờ tôi cần xem lỗi | Vào Cài đặt tắt ô đó đi, hoặc mở công cụ qua menu ⋮ của Chrome |
 | Không thấy thẻ **Đăng nhập** trong trang Nhật ký | Đang dùng tài khoản Quản lý hoặc Nhân viên. Thẻ này chỉ Quản trị viên thấy |
 | Sổ đăng nhập trống trơn | Xem mục *Nhật ký đăng nhập trống* ở cuối tệp này |
 

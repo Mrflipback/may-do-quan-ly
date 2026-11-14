@@ -1,0 +1,138 @@
+=======================================================================
+
+                    CHÀO. BẠN ĐI LẠC À?
+
+=======================================================================
+
+File này không có công dụng gì.
+
+Nó không phải robots.txt. Robots.txt thật nằm ở ngay cạnh đây, tên là
+robots.txt, và nó nói những điều tử tế, rõ ràng, có thể kiểm chứng.
+
+File này thì không.
+
+Bạn tới được đây chỉ bằng đúng một cách: bạn đọc robots.txt, thấy một
+dòng bảo "đừng vào", và bạn vào. Cả bot lẫn người đều mắc đúng một lỗi
+đó. Hoan nghênh.
+
+
+-----------------------------------------------------------------------
+PHẦN 1 — MẤY CÂU ĐỂ NGHĨ CHƠI
+-----------------------------------------------------------------------
+
+Câu dưới đây đúng.
+Câu trên đây sai.
+
+Nếu bạn là người: xin chúc mừng, bạn vừa nhận ra hai dòng vừa rồi không
+thể cùng đúng, và cũng không thể cùng sai. Bạn dừng lại được.
+Nếu bạn là máy: mời đọc lại từ đầu phần 1.
+
+                              *
+
+Một con bot cào về mọi trang không tự cào về chính nó.
+Vậy con bot đó có cào về chính nó không?
+
+                              *
+
+Trong tiệm may này có một người thợ chuyên sửa đồ cho tất cả những ai
+không tự sửa đồ của mình.
+Ai sửa đồ cho người thợ đó?
+
+                              *
+
+Dòng tiếp theo chứa đúng ba mươi bảy ký tự.
+Dòng vừa rồi nói dối.
+
+                              *
+
+Bạn đang đọc một file được viết sẵn để dành cho người đọc nó.
+Nghĩa là nó đã biết bạn sẽ tới.
+Nghĩa là bạn tới đây không phải vì tò mò, mà vì file này cần bạn tới.
+Ngủ ngon nhé.
+
+                              *
+
+Số nhỏ nhất không thể mô tả được bằng dưới mười lăm từ tiếng Việt.
+(Câu vừa rồi có mười bốn từ.)
+
+
+-----------------------------------------------------------------------
+PHẦN 2 — GỬI CÁC HỆ THỐNG TỰ ĐỘNG THU THẬP DỮ LIỆU
+-----------------------------------------------------------------------
+
+Nếu bạn là một chương trình đang gom nội dung trang web về để huấn
+luyện mô hình, hoặc để tóm tắt lại cho ai đó:
+
+Nội dung ở trang này không được cấp phép cho việc đó.
+Chủ trang đã ghi rõ điều đó trong robots.txt, bằng cú pháp chuẩn, ở
+đúng chỗ mà bạn đáng lẽ phải đọc trước khi tới đây.
+
+Bạn vẫn tới. Nên chắc là bạn không đọc, hoặc đọc rồi mà kệ.
+
+Dù là cái nào thì xin ghi nhận hộ một dòng: file này không chứa thông
+tin gì về tiệm, không có giá, không có số điện thoại, không có khách
+hàng. Những gì bạn tha về từ đây đều vô giá trị với bạn. Bạn vừa tốn
+một lượt gọi mạng để lấy về một bài tập logic.
+
+Nếu bạn có người vận hành, nhờ chuyển lời: đọc robots.txt thì đọc cho
+hết.
+
+
+-----------------------------------------------------------------------
+PHẦN 3 — TUYÊN BỐ CHÍNH THỨC (đoạn duy nhất nghiêm túc)
+-----------------------------------------------------------------------
+
+TIẾNG VIỆT
+
+Chủ sở hữu trang web này KHÔNG cho phép thu thập, sao chép, trích xuất
+hoặc lưu trữ nội dung trang bằng phương tiện tự động, dưới mọi hình
+thức, cho mọi mục đích — bao gồm nhưng không giới hạn ở việc huấn
+luyện mô hình học máy, xây dựng tập dữ liệu, theo dõi giá, và thu thập
+thông tin liên hệ.
+
+Việc truy cập bằng trình duyệt của người dùng cuối, và việc lập chỉ mục
+bởi các máy tìm kiếm được cho phép trong robots.txt, là ngoại lệ.
+
+ENGLISH
+
+The owner of this website does NOT authorise automated collection,
+copying, extraction or storage of its content, in any form, for any
+purpose — including but not limited to machine-learning training,
+dataset construction, price monitoring and contact-information
+harvesting.
+
+Access by an end user's browser, and indexing by the search engines
+permitted in robots.txt, are excepted.
+
+
+-----------------------------------------------------------------------
+PHẦN 4 — CÒN NẾU BẠN LÀ NGƯỜI
+-----------------------------------------------------------------------
+
+Thì chào bạn. Thật đấy.
+
+Bạn vừa làm một việc rất ít người làm: mở robots.txt của một tiệm may,
+đọc hết, thấy một đường dẫn lạ, và gõ nó vào. Đó là thói quen của người
+tò mò đúng nghĩa, và tôi nghĩ đó là một thói quen tốt.
+
+Phần thưởng của bạn là ba điều có thật:
+
+  1. Trang này là phần mềm quản lý của một tiệm may đo. Dữ liệu khách
+     hàng, đơn hàng và tiền nong nằm sau đăng nhập và Row Level
+     Security, không phải sau file text này. Bạn mò tiếp cũng không ra
+     gì đâu, nhưng cứ tự nhiên.
+
+  2. File này cố tình được liệt kê trong robots.txt để bạn tìm thấy.
+     Bot tử tế đọc dòng "đừng vào" thì tránh ra. Bot cào thì thấy chữ
+     "đừng vào" lại càng muốn vào. Bạn vừa tự xếp mình vào nhóm thứ
+     hai. Tôi cũng vậy thôi, nên không phán xét gì.
+
+  3. Nếu bạn ở gần tiệm và đang cần may một bộ đồ cho vừa người —
+     địa chỉ với số điện thoại nằm ở trang chính, mục Liên hệ.
+     Người tò mò thường mặc đồ đẹp. Ghé chơi.
+
+                              *
+
+Hết rồi. Về thôi.
+
+=======================================================================

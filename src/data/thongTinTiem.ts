@@ -65,6 +65,65 @@ function docBangGia(thoChuoi: string | undefined): DongBangGia[] {
   }
 }
 
+/* ------------------------------------------------------------------ */
+/*  Nhớ lại ở máy người xem                                           */
+/* ------------------------------------------------------------------ */
+
+const O_NHO = 'may-do-tiem-cong-khai'
+/** Nhớ trong 6 tiếng. Tiệm đổi giờ mở cửa hay bảng giá thì chậm nhất
+ *  nửa ngày là khách thấy — đủ nhanh cho loại nội dung này. */
+const HAN_NHO = 6 * 60 * 60 * 1000
+
+/**
+ * Đọc lại bản đã nhớ, nếu còn hạn.
+ *
+ * VÌ SAO CẦN: trang giới thiệu ai cũng mở được, không cần đăng nhập.
+ * Mỗi lần mở là một lần gọi Supabase, mà gói miễn phí có hạn. Khách
+ * xem đi xem lại, hay một con bot mở tới mở lui, đều ăn vào cái hạn đó.
+ * Nhớ lại một bản thì lần sau không phải hỏi nữa.
+ *
+ * Nói cho rõ: cách này cắt được lượt gọi của người xem thật và của bot
+ * quay lại nhiều lần. Bot mỗi lần dùng một trình duyệt mới tinh thì vẫn
+ * hỏi — không có cách nào chặn từ trình duyệt được.
+ */
+function docBanNho(): ThongTinTiem | null {
+  try {
+    const tho = localStorage.getItem(O_NHO)
+    if (!tho) return null
+    const o = JSON.parse(tho) as { luc: number; tiem: ThongTinTiem }
+    if (!o?.luc || Date.now() - o.luc > HAN_NHO) return null
+    return o.tiem
+  } catch {
+    // Trình duyệt chặn bộ nhớ, hay dữ liệu cũ hỏng — coi như chưa nhớ gì
+    return null
+  }
+}
+
+/**
+ * Vuột bản nhớ đi.
+ *
+ * Gọi khi chủ tiệm vừa sửa thông tin tiệm — không thì bấm "Xem trang"
+ * lại thấy bản cũ, tưởng lưu hỏng.
+ *
+ * Chỉ dọn được bản nhớ TRÊN MÁY NÀY. Khách đã ghé trang từ trước
+ * vẫn thấy bản cũ cho tới khi hết 6 tiếng.
+ */
+export function xoaBanNhoTiem(): void {
+  try {
+    localStorage.removeItem(O_NHO)
+  } catch {
+    /* bỏ qua */
+  }
+}
+
+function ghiBanNho(tiem: ThongTinTiem): void {
+  try {
+    localStorage.setItem(O_NHO, JSON.stringify({ luc: Date.now(), tiem }))
+  } catch {
+    /* chặn bộ nhớ thì thôi, không sao */
+  }
+}
+
 /**
  * Thông tin tiệm cho trang công khai.
  * Đọc khung nhìn v_thong_tin_tiem (chỉ gồm các khóa được phép công khai),
@@ -73,16 +132,26 @@ function docBangGia(thoChuoi: string | undefined): DongBangGia[] {
 export function useThongTinTiemCongKhai() {
   return useQuery({
     queryKey: [...KHOA.caiDat, 'cong-khai'],
-    staleTime: 5 * 60_000,
+    staleTime: HAN_NHO,
     retry: 1,
+    // Có bản nhớ thì hiện ra ngay, khỏi chờ mạng.
+    // Phải bọc trong một hàm và đổi null thành undefined: trả về null
+    // là TanStack coi đó là dữ liệu thật, mà null thì không phải
+    // ThongTinTiem — trang sẽ vỡ khi đọc tiem.ten.
+    initialData: () => docBanNho() ?? undefined,
     queryFn: async (): Promise<ThongTinTiem> => {
       const { data, error } = await supabase.from('v_thong_tin_tiem').select('khoa, gia_tri')
-      if (error) throw error
+      if (error) {
+        // Mạng hỏng thì lấy bản nhớ cũ ra dùng, còn hơn trống trơn
+        const cu = docBanNho()
+        if (cu) return cu
+        throw error
+      }
 
       const m: Record<string, string> = {}
       for (const d of (data ?? []) as { khoa: string; gia_tri: string }[]) m[d.khoa] = d.gia_tri
 
-      return {
+      const tiem: ThongTinTiem = {
         ten: m.ten_tiem?.trim() || 'Tiệm may đo',
         khauHieu: m.khau_hieu?.trim() || 'May đo theo số đo riêng',
         gioiThieu: m.gioi_thieu?.trim() || '',
@@ -92,6 +161,9 @@ export function useThongTinTiemCongKhai() {
         bangGia: docBangGia(m.bang_gia),
         ghiChuGia: m.ghi_chu_gia?.trim() || '',
       }
+
+      ghiBanNho(tiem)
+      return tiem
     },
   })
 }
