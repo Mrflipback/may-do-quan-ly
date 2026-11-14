@@ -5,45 +5,13 @@ import { Card, CardBody, CardHeader } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Field'
 import { useThongBao } from '@/components/ui/ThongBao'
-import { useCaiDat, useLuuCaiDat } from '@/data/heThong'
+import { useMatKhauXoa } from '@/data/matKhauXoa'
 import { dichLoi } from '@/lib/loi'
-import {
-  KHOA_BAM,
-  KHOA_MUOI,
-  dungMatKhau,
-  loiMatKhauMoi,
-  taoVanTay,
-} from '@/lib/matKhauXoa'
+import { cauLoi, loiMatKhauMoi } from '@/lib/matKhauXoa'
 
 /* ------------------------------------------------------------------ */
 /*  Đọc và đổi mật khẩu xoá                                            */
 /* ------------------------------------------------------------------ */
-
-export function useMatKhauXoa() {
-  const caiDat = useCaiDat()
-  const luu = useLuuCaiDat()
-
-  const muoi = caiDat.data?.[KHOA_MUOI]
-  const bam = caiDat.data?.[KHOA_BAM]
-  const daDat = Boolean(muoi && bam)
-
-  return {
-    dangTai: caiDat.isLoading,
-    daDat,
-    /** Mật khẩu người dùng vừa gõ có khớp không. */
-    kiemTra: (mk: string) => dungMatKhau(muoi, bam, mk),
-    dangLuu: luu.isPending,
-    /** Đặt mật khẩu mới (hoặc đổi mật khẩu cũ). */
-    dat: async (mkMoi: string) => {
-      const v = taoVanTay(mkMoi)
-      await luu.mutateAsync({ [KHOA_MUOI]: v.muoi, [KHOA_BAM]: v.bam })
-    },
-    /** Gỡ bỏ mật khẩu: để trống hai ô trong cai_dat. */
-    go: async () => {
-      await luu.mutateAsync({ [KHOA_MUOI]: '', [KHOA_BAM]: '' })
-    },
-  }
-}
 
 /* ------------------------------------------------------------------ */
 /*  Thẻ trong trang Cài đặt                                            */
@@ -69,15 +37,18 @@ export function TheMatKhauXoa() {
     e.preventDefault()
     setLoi('')
 
-    if (mk.daDat && !mk.kiemTra(hienTai)) {
-      return setLoi('Mật khẩu xoá hiện tại không đúng.')
-    }
     const loiMoi = loiMatKhauMoi(moi)
     if (loiMoi) return setLoi(loiMoi)
     if (moi !== lai) return setLoi('Hai ô mật khẩu mới chưa giống nhau.')
 
     try {
-      await mk.dat(moi)
+      // Máy chủ kiểm mật khẩu cũ, không phải trình duyệt.
+      // Sai thì nó trả về ok:false chứ không báo lỗi — xem file SQL 11.
+      const kq = await mk.dat(moi, hienTai)
+      if (!kq.ok) {
+        setHienTai('')
+        return setLoi(cauLoi(kq))
+      }
       donForm()
       tb.thanhCong(
         mk.daDat
@@ -91,9 +62,12 @@ export function TheMatKhauXoa() {
 
   const goBo = async () => {
     setLoi('')
-    if (!mk.kiemTra(hienTai)) return setLoi('Gõ đúng mật khẩu hiện tại thì mới gỡ bỏ được.')
     try {
-      await mk.go()
+      const kq = await mk.go(hienTai)
+      if (!kq.ok) {
+        setHienTai('')
+        return setLoi(cauLoi(kq))
+      }
       donForm()
       tb.tin('Đã gỡ mật khẩu xoá. Giờ xoá tài khoản chỉ cần bấm xác nhận.')
     } catch (err) {
@@ -167,10 +141,12 @@ export function TheMatKhauXoa() {
         </form>
 
         <p className="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-500 ring-1 ring-slate-200">
-          Phần mềm <strong>không lưu mật khẩu nguyên văn</strong>, chỉ lưu dấu vân tay của nó, nên
-          nhìn vào cơ sở dữ liệu cũng không đọc ngược ra được. Đổi lại: quên là không ai lấy lại
-          hộ được — lúc đó phải vào Supabase xoá hai dòng <code>xoa_tk_muoi</code> và{' '}
-          <code>xoa_tk_bam</code> trong bảng <code>cai_dat</code> để đặt lại từ đầu.
+          Máy chủ kiểm mật khẩu này, không phải trình duyệt — nên mở công cụ lập trình của
+          trình duyệt cũng không lách được. Gõ sai <strong>năm lần liền</strong> là bị khoá tạm
+          mười lăm phút. Phần mềm không lưu mật khẩu nguyên văn, chỉ lưu dấu vân tay, và dấu vân
+          tay đó <strong>không ai đọc được</strong>, kể cả bạn. Đổi lại: quên là không ai lấy lại hộ
+          được — lúc đó phải vào Supabase chạy <code>delete from public.khoa_xoa;</code> để đặt
+          lại từ đầu.
         </p>
       </CardBody>
     </Card>
@@ -191,8 +167,13 @@ interface HopThoaiProps {
   dangXuLy?: boolean
   /** Chưa đặt mật khẩu xoá thì chặn luôn, bắt đi đặt trước. */
   daDatMatKhau: boolean
-  kiemTra: (mk: string) => boolean
-  dongY: () => void
+  /**
+   * Câu báo sai mật khẩu do MÁY CHỦ trả về.
+   * Hộp thoại không tự phán đúng sai nữa — nó không có cơ sở để phán.
+   */
+  loiMayChu?: string
+  /** Nhận chữ người dùng gõ, gửi thẳng lên máy chủ. */
+  dongY: (matKhau: string) => void
   huy: () => void
 }
 
@@ -204,7 +185,7 @@ export function HopThoaiXoaCanMatKhau({
   nhanDongY = 'Xoá tài khoản',
   dangXuLy = false,
   daDatMatKhau,
-  kiemTra,
+  loiMayChu,
   dongY,
   huy,
 }: HopThoaiProps) {
@@ -218,6 +199,12 @@ export function HopThoaiXoaCanMatKhau({
       setLoi('')
     }
   }, [moRa])
+
+  // Máy chủ báo sai thì dọn ô đi cho gõ lại, không để người dùng phải
+  // tự xóa từng ký tự.
+  useEffect(() => {
+    if (loiMayChu) setMk('')
+  }, [loiMayChu])
 
   useEffect(() => {
     if (!moRa) return
@@ -233,13 +220,10 @@ export function HopThoaiXoaCanMatKhau({
   const gui = (e: React.FormEvent) => {
     e.preventDefault()
     if (!daDatMatKhau) return
-    if (!kiemTra(mk)) {
-      setLoi('Mật khẩu xoá không đúng. Tài khoản chưa bị xoá.')
-      setMk('')
-      return
-    }
+    // KHÔNG kiểm mật khẩu ở đây. Trình duyệt không giữ dấu vân tay nên
+    // chẳng có gì để so. Máy chủ kiểm, câu trả lời quay về qua loiMayChu.
     setLoi('')
-    dongY()
+    dongY(mk)
   }
 
   return createPortal(
@@ -279,7 +263,7 @@ export function HopThoaiXoaCanMatKhau({
               autoFocus
               autoComplete="off"
               placeholder="Gõ mật khẩu bạn đã đặt trong Cài đặt"
-              loi={loi}
+              loi={loiMayChu || loi}
               iconTrai={<KeyRound className="size-4" />}
             />
             <div className="mt-6 flex justify-end gap-2">

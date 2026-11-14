@@ -1,5 +1,15 @@
 import { supabase } from '@/lib/supabase'
 import { dichLoi } from '@/lib/loi'
+import { cauLoi, type KetQuaMatKhau } from '@/lib/matKhauXoa'
+
+/**
+ * Máy chủ từ chối vì mật khẩu xoá sai hoặc đang bị khoá tạm.
+ *
+ * Tách riêng ra một kiểu lỗi để màn hình biết đường giữ hộp thoại mở
+ * cho người dùng gõ lại, thay vì đóng đi rồi hiện một câu báo trôi qua.
+ * Dữ liệu chưa bị đụng tới gì khi lỗi này bật ra.
+ */
+export class LoiMatKhauXoa extends Error {}
 import { queryClient } from './chung'
 
 /**
@@ -219,6 +229,11 @@ export interface LuaChonKhoiPhuc {
    *         lấy theo file
    */
   xoaTruoc: boolean
+  /**
+   * Mật khẩu xoá, chỉ cần khi xoaTruoc = true.
+   * MÁY CHỦ kiểm cái này, không phải trình duyệt.
+   */
+  matKhau?: string
 }
 
 export interface TienDo {
@@ -264,22 +279,22 @@ export async function khoiPhucDuLieu(
     bao({ buoc: viec, phanTram: Math.round((daLam / tongViec) * 100) })
   }
 
-  /* --- Bước 1: xoá sạch nếu người dùng chọn thay toàn bộ --- */
+  /* --- Bước 1: xoá sạch nếu người dùng chọn thay toàn bộ ---
+     Việc xoá do MÁY CHỦ làm, qua hàm xoa_sach_du_lieu. Trình duyệt
+     không tự xoá từng bảng nữa — làm vậy thì ai bỏ qua ô mật khẩu
+     cũng xoá được. Xem supabase/11_khoa_xoa_tren_may_chu.sql. */
   if (chon.xoaTruoc) {
     bao({ buoc: 'Đang dọn dữ liệu cũ…', phanTram: 2 })
-    // Xoá ngược thứ tự nạp: con trước, cha sau
-    for (const bang of [...THU_TU_NAP].reverse()) {
-      // KHÔNG bao giờ xoá tài khoản nhân sự. Xoá là cả tiệm mất quyền
-      // vào phần mềm, kể cả chính người đang bấm nút.
-      if (bang === 'nguoi_dung') continue
+    const { data, error } = await supabase.rpc('xoa_sach_du_lieu', {
+      mk_xoa: chon.matKhau ?? '',
+    })
+    if (error) throw error
 
-      const khoa = KHOA_CHINH[bang]
-      const { error } = await supabase.from(bang).delete().not(khoa, 'is', null)
-      if (error) {
-        if (BANG_CO_THE_THIEU.includes(bang)) continue
-        kq.loi.push(`Không dọn được ${NHAN_BANG[bang]}: ${dichLoi(error)}`)
-      }
-    }
+    const traLoi = (data ?? { ok: false }) as KetQuaMatKhau
+    // Sai mật khẩu không phải lỗi, máy chủ trả về ok:false. Dừng hẳn tại
+    // đây — tuyệt đối không được nạp chồng lên dữ liệu cũ.
+    if (!traLoi.ok) throw new LoiMatKhauXoa(cauLoi(traLoi))
+
     nhich('Đã dọn dữ liệu cũ')
   }
 

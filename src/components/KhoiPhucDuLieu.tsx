@@ -10,10 +10,13 @@ import {
 import { Card, CardBody, CardHeader } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { HopThoaiXacNhan, useThongBao } from '@/components/ui/ThongBao'
-import { HopThoaiXoaCanMatKhau, useMatKhauXoa } from '@/components/MatKhauXoa'
+import { HopThoaiXoaCanMatKhau } from '@/components/MatKhauXoa'
+import { kiemMatKhauXoa, useMatKhauXoa } from '@/data/matKhauXoa'
+import { cauLoi } from '@/lib/matKhauXoa'
 import { dinhDangNgayGio, dinhDangSo } from '@/lib/utils'
 import { dichLoi } from '@/lib/loi'
 import {
+  LoiMatKhauXoa,
   khoiPhucDuLieu,
   soiFileSaoLuu,
   taiBanSaoLuu,
@@ -44,6 +47,8 @@ export function KhoiPhucDuLieu() {
   const [luuTruoc, setLuuTruoc] = useState(true)
 
   const [hoiNapThem, setHoiNapThem] = useState(false)
+  /** Câu báo sai mật khẩu do máy chủ trả về. */
+  const [loiMatKhau, setLoiMatKhau] = useState('')
   const [hoiThayHet, setHoiThayHet] = useState(false)
 
   const [tienDo, setTienDo] = useState<TienDo | null>(null)
@@ -75,14 +80,28 @@ export function KhoiPhucDuLieu() {
   }
 
   /* ----------------------------- Chạy thật ----------------------------- */
-  const chay = async () => {
+  const chay = async (matKhau: string) => {
     if (!soi) return
-    setHoiNapThem(false)
-    setHoiThayHet(false)
+    setLoiMatKhau('')
+    // KHÔNG đóng hộp thoại ở đây. Máy chủ chưa trả lời thì chưa biết
+    // mật khẩu đúng hay sai — đóng sớm là người dùng mất chỗ gõ lại.
+    // Đóng sau, khi đã chắc là qua được.
     setKetQua(null)
     setTienDo({ buoc: 'Đang chuẩn bị…', phanTram: 0 })
 
     try {
+      // Kiểu xoá sạch: hỏi máy chủ mật khẩu đúng chưa, TRƯỚC khi làm gì
+      // khác. Gõ sai thì dừng ngay tại đây: không tải file nào về máy,
+      // không đụng một dòng dữ liệu nào, hộp thoại vẫn mở cho gõ lại.
+      if (xoaTruoc) {
+        setTienDo({ buoc: 'Đang kiểm mật khẩu xoá…', phanTram: 1 })
+        const cua = await kiemMatKhauXoa(matKhau)
+        if (!cua.ok) {
+          setLoiMatKhau(cauLoi(cua))
+          return
+        }
+      }
+
       // Lưới an toàn: cất bản hiện tại xuống máy trước khi đụng vào gì
       if (luuTruoc) {
         setTienDo({ buoc: 'Đang cất bản sao lưu của dữ liệu hiện tại…', phanTram: 1 })
@@ -94,7 +113,11 @@ export function KhoiPhucDuLieu() {
         }
       }
 
-      const kq = await khoiPhucDuLieu(soi.goi, { xoaTruoc }, setTienDo)
+      const kq = await khoiPhucDuLieu(soi.goi, { xoaTruoc, matKhau }, setTienDo)
+
+      // Qua được cửa mật khẩu rồi mới đóng hộp thoại
+      setHoiNapThem(false)
+      setHoiThayHet(false)
       setKetQua(kq)
 
       if (kq.loi.length > 0) {
@@ -104,7 +127,10 @@ export function KhoiPhucDuLieu() {
         tb.thanhCong(`Đã khôi phục ${dinhDangSo(tong)} dòng dữ liệu.`)
       }
     } catch (err) {
-      tb.loi(dichLoi(err))
+      // Sai mật khẩu thì giữ hộp thoại mở cho gõ lại. Dữ liệu chưa bị
+      // đụng tới — máy chủ chặn ngay từ bước đầu.
+      if (err instanceof LoiMatKhauXoa) setLoiMatKhau(err.message)
+      else tb.loi(dichLoi(err))
     } finally {
       setTienDo(null)
     }
@@ -361,7 +387,7 @@ export function KhoiPhucDuLieu() {
             : ''
         }
         nhanDongY="Nạp dữ liệu"
-        dongY={() => void chay()}
+        dongY={() => void chay('')}
         huy={() => setHoiNapThem(false)}
       />
 
@@ -378,9 +404,12 @@ export function KhoiPhucDuLieu() {
         canhBao="Việc này KHÔNG huỷ lại được. Hãy chắc chắn bạn đã cất một bản sao lưu của dữ liệu hiện tại."
         nhanDongY="Xoá sạch và nạp lại"
         daDatMatKhau={matKhauXoa.daDat}
-        kiemTra={matKhauXoa.kiemTra}
-        dongY={() => void chay()}
-        huy={() => setHoiThayHet(false)}
+        loiMayChu={loiMatKhau}
+        dongY={(mk) => void chay(mk)}
+        huy={() => {
+          setHoiThayHet(false)
+          setLoiMatKhau('')
+        }}
       />
     </Card>
   )

@@ -11,7 +11,6 @@ import { useThongBao } from '@/components/ui/ThongBao'
 import {
   HopThoaiXoaCanMatKhau,
   TheMatKhauXoa,
-  useMatKhauXoa,
 } from '@/components/MatKhauXoa'
 import { MO_TA_VAI_TRO, NHAN_VAI_TRO } from '@/lib/constants'
 import { chuCaiDau, dinhDangNgay, dinhDangSo } from '@/lib/utils'
@@ -24,8 +23,9 @@ import {
   useDanhSachNguoiDung,
   useDoiVaiTro,
   useLuuCaiDat,
-  useXoaNguoiDung,
 } from '@/data/heThong'
+import { useMatKhauXoa, useXoaTaiKhoan } from '@/data/matKhauXoa'
+import { cauLoi } from '@/lib/matKhauXoa'
 import type { NguoiDung, VaiTro } from '@/types'
 
 export function SettingsPage() {
@@ -38,8 +38,10 @@ export function SettingsPage() {
   const luuCaiDat = useLuuCaiDat()
   const nhanSu = useDanhSachNguoiDung()
   const doiVaiTro = useDoiVaiTro()
-  const xoaNguoiDung = useXoaNguoiDung()
+  const xoaNguoiDung = useXoaTaiKhoan()
   const [nguoiXoa, setNguoiXoa] = useState<NguoiDung | null>(null)
+  /** Câu báo sai mật khẩu do máy chủ trả về, để hộp thoại hiện lên. */
+  const [loiMatKhau, setLoiMatKhau] = useState('')
 
   /**
    * Xoá một tài khoản khỏi tiệm.
@@ -48,15 +50,21 @@ export function SettingsPage() {
    * còn nên có ở lại cũng chẳng xem được gì. Riêng Quản trị viên CUỐI CÙNG
    * thì cơ sở dữ liệu chặn lại, để tiệm không bị khoá ngoài cửa.
    */
-  async function xoaTaiKhoan() {
+  async function xoaTaiKhoan(matKhau: string) {
     const u = nguoiXoa
     if (!u) return
     const laChinhMinh = u.id === hoSo?.id
+    setLoiMatKhau('')
     try {
-      const soDong = await xoaNguoiDung.mutateAsync(u.id)
-      if (soDong === 0) {
+      const kq = await xoaNguoiDung.mutateAsync({ id: u.id, matKhau })
+
+      // Sai mật khẩu KHÔNG phải lỗi — máy chủ trả về ok:false. Giữ hộp
+      // thoại mở cho người dùng gõ lại, đừng đóng đi.
+      if (!kq.ok) return setLoiMatKhau(cauLoi(kq))
+
+      if (Number(kq.so_dong ?? 0) === 0) {
         tb.loi(
-          'Không xoá được. Chỉ Quản trị viên mới xoá được tài khoản của người khác — hoặc bạn chưa chạy file 06_phan_quyen_quan_ly.sql trong Supabase.',
+          'Không xoá được. Có thể đây là Quản trị viên cuối cùng — cơ sở dữ liệu giữ lại ít nhất một người để tiệm không bị khoá ngoài cửa.',
         )
         setNguoiXoa(null)
         return
@@ -364,9 +372,12 @@ export function SettingsPage() {
         nhanDongY={nguoiXoa?.id === hoSo?.id ? 'Xoá tài khoản của tôi' : 'Xoá tài khoản'}
         dangXuLy={xoaNguoiDung.isPending}
         daDatMatKhau={matKhauXoa.daDat}
-        kiemTra={matKhauXoa.kiemTra}
-        dongY={() => void xoaTaiKhoan()}
-        huy={() => setNguoiXoa(null)}
+        loiMayChu={loiMatKhau}
+        dongY={(mk) => void xoaTaiKhoan(mk)}
+        huy={() => {
+          setNguoiXoa(null)
+          setLoiMatKhau('')
+        }}
       />
     </div>
   )

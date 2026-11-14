@@ -97,27 +97,17 @@ export function useDoiVaiTro() {
   })
 }
 
-/**
- * Xoá tài khoản khỏi tiệm.
+/*
+ * XOÁ TÀI KHOẢN ĐÃ CHUYỂN ĐI CHỖ KHÁC
+ * ------------------------------------------------------------------
+ * Trước đây ở đây có hàm useXoaNguoiDung() xoá thẳng trong bảng. Đã bỏ.
  *
- * Xoá hồ sơ trong bảng nguoi_dung, người đó mất sạch quyền vào phần mềm ngay
- * lập tức. Chỉ Quản trị viên xoá được, và không ai tự xoá chính mình
- * (policy p_nd_xoa). Email đăng nhập vẫn còn nằm trong phần Authentication của
- * Supabase — muốn xoá hẳn email đó thì phải vào bảng điều khiển Supabase, vì
- * trình duyệt không được phép đụng vào danh sách tài khoản đăng nhập.
+ * Xoá tài khoản giờ bắt buộc đi qua mật khẩu xoá, mà mật khẩu đó do MÁY
+ * CHỦ kiểm. Dùng useXoaTaiKhoan() trong src/data/matKhauXoa.ts.
+ *
+ * File SQL 11 cũng đã thu hồi quyền xoá trực tiếp trên bảng nguoi_dung,
+ * nên có viết lại hàm cũ cũng không chạy được nữa.
  */
-export function useXoaNguoiDung() {
-  return useMutation({
-    mutationFn: async (id: string): Promise<number> => {
-      const { data, error } = await supabase.from('nguoi_dung').delete().eq('id', id).select('id')
-      if (error) throw error
-      return (data ?? []).length
-    },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: KHOA.nguoiDung })
-    },
-  })
-}
 
 export function useSuaHoSoCuaToi() {
   return useMutation({

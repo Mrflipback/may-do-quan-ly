@@ -61,6 +61,7 @@ Làm **y hệt** với những file sau, theo đúng thứ tự:
 | `08_nhat_ky.sql` | Nhật ký hoạt động — ai làm gì, lúc nào, bao nhiêu tiền | Có |
 | `09_don_dep_sau_khi_bo.sql` | Dọn bảng cũ của đặt may online và ảnh mẫu | Không — **xoá thật, đọc kỹ đầu file** |
 | `10_nhat_ky_dang_nhap.sql` | Nhật ký đăng nhập — ai vào, lúc nào, từ IP nào | Có, nếu muốn xem sổ đăng nhập |
+| `11_khoa_xoa_tren_may_chu.sql` | Mật khẩu xoá — chuyển việc kiểm xuống máy chủ | **Có** — chưa chạy thì mật khẩu xoá không hoạt động |
 
 > ⚠️ **File 06 là bắt buộc nếu bạn muốn:**
 > · cấp vai trò **Quản lý** cho ai đó,
@@ -80,13 +81,35 @@ Người đăng ký đầu tiên tự động là Quản trị viên. Phần m�
 một Quản trị viên** — không xoá và không hạ quyền người cuối cùng được, để tiệm
 không bao giờ bị khoá ngoài cửa.
 
-### Mật khẩu xoá tài khoản
+### Mật khẩu xoá
+
+Phải chạy `11_khoa_xoa_tren_may_chu.sql` thì phần này mới hoạt động.
 
 Vào **Cài đặt › Mật khẩu xoá tài khoản** để tự đặt một mật khẩu riêng (khác mật
-khẩu đăng nhập). Từ đó muốn xoá tài khoản nào cũng phải gõ mật khẩu này.
-Phần mềm không lưu mật khẩu nguyên văn, chỉ lưu dấu vân tay của nó — nên quên là
-không ai lấy lại hộ được. Lúc đó vào Supabase, bảng `cai_dat`, xoá hai dòng
-`xoa_tk_muoi` và `xoa_tk_bam` để đặt lại từ đầu.
+khẩu đăng nhập). Hai việc sau bắt buộc phải gõ nó:
+
+- Xoá một tài khoản nhân sự
+- Khôi phục dữ liệu kiểu **xoá sạch rồi nạp lại**
+
+**MÁY CHỦ KIỂM MẬT KHẨU NÀY, KHÔNG PHẢI TRÌNH DUYỆT.** Đó là khác biệt quan
+trọng: trình duyệt không giữ dấu vân tay, không tự phán đúng sai, nên mở công
+cụ lập trình của trình duyệt (F12) cũng không lách được.
+
+Gõ sai **năm lần liền** là bị khoá tạm mười lăm phút. Cái đếm dùng chung cho
+mọi đường, gõ ở đâu cũng tính.
+
+Phần mềm không lưu mật khẩu nguyên văn, chỉ lưu dấu vân tay băm bằng bcrypt,
+và dấu vân tay đó nằm trong bảng `khoa_xoa` mà **không ai đọc được**, kể cả Quản
+trị viên. Quên là không ai lấy lại hộ được — lúc đó vào Supabase SQL Editor chạy:
+
+```sql
+delete from public.khoa_xoa;
+```
+
+rồi vào Cài đặt đặt lại từ đầu.
+
+> **Chạy file 11 xong là mật khẩu cũ hết giá trị.** Cách băm đã đổi, mà băm là
+> đường một chiều nên không chuyển được. Vào Cài đặt đặt lại một lần.
 
 ### Giao diện riêng cho từng người
 
@@ -345,6 +368,9 @@ Vercel tự động cập nhật trang web sau khoảng 1 phút. Không phải l
 | Trang trắng sau khi đưa lên Vercel | Nếu đi theo cách D1–D2 (GitHub): quên điền Environment Variables, thêm vào rồi vào tab **Deployments** bấm **Redeploy**. Cách D0 không gặp lỗi này |
 | Sửa code xong mở ra vẫn thấy bản cũ | Không cần làm gì — lần mở kế tiếp phần mềm tự đóng gói lại, đợi 1–3 phút |
 | Thẻ **Đăng nhập** báo *không tìm thấy hàm* | Chưa chạy `10_nhat_ky_dang_nhap.sql` |
+| Xoá tài khoản báo *không tìm thấy hàm* | Chưa chạy `11_khoa_xoa_tren_may_chu.sql` |
+| Cài đặt báo "Chưa đặt" dù đã từng đặt mật khẩu xoá | Đúng như vậy sau khi chạy file 11. Đặt lại một lần |
+| "Đã gõ sai quá nhiều lần" | Đợi 15 phút. Muốn mở sớm thì chạy `update public.khoa_xoa set lan_sai = 0, khoa_den = null;` |
 | Không thấy thẻ **Đăng nhập** trong trang Nhật ký | Đang dùng tài khoản Quản lý hoặc Nhân viên. Thẻ này chỉ Quản trị viên thấy |
 | Sổ đăng nhập trống trơn | Xem mục *Nhật ký đăng nhập trống* ở cuối tệp này |
 
