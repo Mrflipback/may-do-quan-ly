@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+
 /**
  * CHẶN PHÍM TẮT MỞ CÔNG CỤ LẬP TRÌNH
  * ==================================================================
@@ -32,6 +34,21 @@
  *     người già mắt kém phóng chữ lên tự dưng bị đá ra.
  *   · Chặn chuột phải. Mất luôn chức năng dán, chọn chữ, mở thẻ mới —
  *     phiền người dùng thật nhiều hơn phiền người nghịch.
+ */
+
+/* ------------------------------------------------------------------ */
+/*  ÁP DỤNG Ở ĐÂU                                                   */
+/* ------------------------------------------------------------------ */
+/*
+ *   · Trang giới thiệu (/tiệm) và trang đăng nhập: LUÔN BẬT, viết cứng.
+ *     Hai trang này không đọc bảng cai_dat (người xem chưa đăng nhập nên
+ *     không có quyền đọc), mà thêm một lượt hỏi Supabase chỉ để biết
+ *     có nuốt phím hay không thì không đáng — đi ngược việc tiết kiệm
+ *     dung lượng. Nên viết cứng luôn.
+ *
+ *   · Phần quản lý: theo ô tích trong Cài đặt, tắt được. Phải tắt được,
+ *     vì khi phần mềm có lỗi thì chính chủ tiệm hoặc người sửa cần mở
+ *     công cụ ra xem.
  */
 
 /** Những tổ hợp phím quen tay sẽ bị nuốt. */
@@ -78,4 +95,17 @@ export function chanDevTools(bat: boolean, khiBam?: () => void): void {
   // Bắt ở pha "đi xuống" (capture) để tóm trước mọi thứ khác trong trang.
   // Vẫn không tóm được trình duyệt, vì trình duyệt đứng ngoài trang.
   window.addEventListener('keydown', daGan, true)
+}
+
+/**
+ * Dành cho hai trang công khai: bật lúc mở trang, gỡ lúc rời trang.
+ *
+ * Không nhắc gì cả khi có người bấm — khách vào xem bảng giá mà bị hiện
+ * một câu nội bộ của tiệm thì kỳ.
+ */
+export function useChanPhimTatCongKhai(): void {
+  useEffect(() => {
+    chanDevTools(true)
+    return () => chanDevTools(false)
+  }, [])
 }

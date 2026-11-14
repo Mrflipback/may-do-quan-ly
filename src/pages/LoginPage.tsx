@@ -6,12 +6,14 @@ import { Input } from '@/components/ui/Field'
 import { useAuth } from '@/auth/AuthProvider'
 import { useThongBao } from '@/components/ui/ThongBao'
 import { DangTaiToanTrang } from '@/components/BaoVe'
+import { useChanPhimTatCongKhai } from '@/lib/chanDevTools'
 import { dichLoi } from '@/lib/loi'
 import { loiTenTaiKhoan } from '@/lib/utils'
 
 type CheDo = 'dang_nhap' | 'dang_ky' | 'quen_mat_khau'
 
 export function LoginPage() {
+  useChanPhimTatCongKhai()
   const { phien, dangTai, dangNhap, dangKy, quenMatKhau } = useAuth()
   const dieuHuong = useNavigate()
   const viTri = useLocation()

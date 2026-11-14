@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/Button'
 import { ChonNgonNgu, ChuNhanManh, GoiYNgonNgu } from '@/components/ChonNgonNgu'
 import { LoDan } from '@/components/LoDan'
 import { TIEM_MAC_DINH, useThongTinTiemCongKhai } from '@/data/thongTinTiem'
+import { useChanPhimTatCongKhai } from '@/lib/chanDevTools'
 import { useT } from '@/i18n'
 import { useNhan } from '@/i18n/nhan'
 import type { LoaiTrangPhuc } from '@/types'
@@ -61,6 +62,7 @@ function soDienThoaiGon(sdt: string): string {
 }
 
 export function ShopPage() {
+  useChanPhimTatCongKhai()
   const { t: dich } = useT()
   const { NHAN_LOAI_TRANG_PHUC } = useNhan()
   const tiem = useThongTinTiemCongKhai()

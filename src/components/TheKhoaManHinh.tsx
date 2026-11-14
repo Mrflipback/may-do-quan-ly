@@ -84,7 +84,9 @@ export function TheKhoaManHinh() {
               Nuốt phím tắt mở công cụ lập trình
             </span>
             <span className="mt-1 block text-slate-500">
-              Bấm F12, Ctrl+Shift+I hay Ctrl+U sẽ không ăn gì.
+              Bấm F12, Ctrl+Shift+I hay Ctrl+U sẽ không ăn gì. Ô này chỉ ăn cho{' '}
+              <strong>phần quản lý</strong> — trang giới thiệu và trang đăng nhập luôn bật
+              sẵn, không tắt được. Khi nào cần xem lỗi thì tắt ô này đi.
             </span>
           </span>
         </label>
