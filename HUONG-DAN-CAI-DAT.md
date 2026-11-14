@@ -62,6 +62,7 @@ Làm **y hệt** với những file sau, theo đúng thứ tự:
 | `09_don_dep_sau_khi_bo.sql` | Dọn bảng cũ của đặt may online và ảnh mẫu | Không — **xoá thật, đọc kỹ đầu file** |
 | `10_nhat_ky_dang_nhap.sql` | Nhật ký đăng nhập — ai vào, lúc nào, từ IP nào | Có, nếu muốn xem sổ đăng nhập |
 | `11_khoa_xoa_tren_may_chu.sql` | Mật khẩu xoá — chuyển việc kiểm xuống máy chủ | **Có** — chưa chạy thì mật khẩu xoá không hoạt động |
+| `12_siet_quyen_goi_ham.sql` | Đóng mấy cửa hàm còn hở với người chưa đăng nhập | Nên chạy — chỉ đổi quyền, không đụng dữ liệu |
 
 > ⚠️ **File 06 là bắt buộc nếu bạn muốn:**
 > · cấp vai trò **Quản lý** cho ai đó,

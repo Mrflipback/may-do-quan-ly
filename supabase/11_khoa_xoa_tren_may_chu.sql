@@ -194,6 +194,10 @@ as $$
   select exists (select 1 from public.khoa_xoa);
 $$;
 
+-- Nhớ revoke TRƯỚC khi grant. Trong PostgreSQL, hàm mới tạo thì mặc
+-- định AI CŨNG GỌI ĐƯỢC. Viết mỗi dòng grant là chỉ mở thêm một cửa,
+-- không đóng cái cửa đang mở sẵn cho người lạ.
+revoke all on function public.co_mat_khau_xoa() from public, anon;
 grant execute on function public.co_mat_khau_xoa() to authenticated;
 
 
@@ -245,6 +249,7 @@ begin
   return jsonb_build_object('ok', true);
 end $$;
 
+revoke all on function public.dat_mat_khau_xoa(text, text) from public, anon;
 grant execute on function public.dat_mat_khau_xoa(text, text) to authenticated;
 
 
@@ -272,6 +277,7 @@ begin
   return jsonb_build_object('ok', true);
 end $$;
 
+revoke all on function public.go_mat_khau_xoa(text) from public, anon;
 grant execute on function public.go_mat_khau_xoa(text) to authenticated;
 
 
@@ -315,6 +321,7 @@ begin
   return jsonb_build_object('ok', true, 'so_dong', dem, 'ten', coalesce(ten, ''));
 end $$;
 
+revoke all on function public.xoa_tai_khoan(uuid, text) from public, anon;
 grant execute on function public.xoa_tai_khoan(uuid, text) to authenticated;
 
 
@@ -350,6 +357,7 @@ begin
   return jsonb_build_object('ok', true);
 end $$;
 
+revoke all on function public.kiem_mat_khau_xoa(text) from public, anon;
 grant execute on function public.kiem_mat_khau_xoa(text) to authenticated;
 
 
@@ -400,6 +408,7 @@ begin
   return jsonb_build_object('ok', true, 'da_xoa', dem);
 end $$;
 
+revoke all on function public.xoa_sach_du_lieu(text) from public, anon;
 grant execute on function public.xoa_sach_du_lieu(text) to authenticated;
 
 
