@@ -152,8 +152,8 @@ export function LoginPage() {
                 value={hoTen}
                 onChange={(e) => setHoTen(e.target.value)}
                 autoComplete="name"
-                placeholder="Nguyễn Văn An"
-                goiY="Chỉ dùng chữ và số, không có ký tự đặc biệt như @ # $ % &"
+                placeholder="Nguyen Van An"
+                goiY="Viết KHÔNG DẤU, không dùng dấu toán học hay dấu câu. Ví dụ: Nguyen Van An"
                 iconTrai={<UserRound className="size-4" />}
               />
             )}

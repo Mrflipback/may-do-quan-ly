@@ -83,20 +83,9 @@ export interface HoSoSoDoNhap {
   ghi_chu: string | null
 }
 
-/* --------------------------- Thư viện mẫu --------------------------- */
+/* --------------------------- Loại trang phục --------------------------- */
 
 export type LoaiTrangPhuc = 'ao_so_mi' | 'quan_tay' | 'vest' | 'vay' | 'ao_dai' | 'khac'
-
-export interface AnhMau {
-  id: string
-  ten_mau: string
-  loai: LoaiTrangPhuc
-  duong_dan_anh: string
-  mo_ta: string | null
-  the_tag: string[]
-  ngay_tao: string
-  nguoi_tao: string | null
-}
 
 /* ----------------------------- Đơn hàng ----------------------------- */
 
@@ -115,7 +104,6 @@ export interface DongSanPham {
   loai: LoaiTrangPhuc
   so_luong: number
   don_gia: number
-  anh_mau_id: string | null
   ghi_chu: string | null
   thu_tu: number
   thanh_tien: number
@@ -273,46 +261,7 @@ export interface CaiDat {
   gia_tri: string
 }
 
-/* --------------------- Đặt may online (trang web) --------------------- */
-
-export type TrangThaiDonOnline = 'moi' | 'da_lien_he' | 'da_tao_don' | 'huy'
-export type NhanHang = 'tai_tiem' | 'giao_tan_noi'
-
-export interface DonOnline {
-  id: string
-  ma_phieu: string
-  ho_ten: string
-  so_dien_thoai: string
-  loai_trang_phuc: LoaiTrangPhuc
-  mo_ta_trang_phuc: string
-  so_luong: number
-  ngay_can_lay: string | null
-  nhan_hang: NhanHang
-  dia_chi: string
-  /** Số đo khách tự khai, cùng dạng với HoSoSoDo.so_do */
-  so_do: Record<string, string>
-  ghi_chu: string
-  trang_thai: TrangThaiDonOnline
-  ghi_chu_tiem: string
-  khach_hang_id: string | null
-  don_hang_id: string | null
-  ngay_gui: string
-  ngay_cap_nhat: string
-}
-
-/** Phiếu khách gửi lên từ trang công khai. */
-export interface DonOnlineNhap {
-  ho_ten: string
-  so_dien_thoai: string
-  loai_trang_phuc: LoaiTrangPhuc
-  mo_ta_trang_phuc: string
-  so_luong: number
-  ngay_can_lay: string | null
-  nhan_hang: NhanHang
-  dia_chi: string
-  so_do: Record<string, string>
-  ghi_chu: string
-}
+/* ----------------------- Trang giới thiệu của tiệm ----------------------- */
 
 /** Một dòng trong bảng giá hiện trên trang công khai. */
 export interface DongBangGia {

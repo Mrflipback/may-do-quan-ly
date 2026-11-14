@@ -1,7 +1,5 @@
 import {
   ChartColumn,
-  Globe,
-  Images,
   LayoutDashboard,
   Package,
   Printer,
@@ -18,6 +16,7 @@ import type { VaiTro } from '@/types'
 
 export interface MucMenu {
   duongDan: string
+  /** KHOÁ bản dịch, ví dụ "menu.donHang". Sidebar gọi dich() để ra chữ. */
   nhan: string
   icon: ComponentType<{ className?: string }>
   /** Vai trò được phép thấy mục này. Bỏ trống nghĩa là ai cũng thấy. */
@@ -25,55 +24,54 @@ export interface MucMenu {
 }
 
 export interface NhomMenu {
+  /** KHOÁ bản dịch của tên nhóm. */
   tieuDe: string
   muc: MucMenu[]
 }
 
 export const MENU: NhomMenu[] = [
   {
-    tieuDe: 'Tổng quan',
-    muc: [{ duongDan: '/', nhan: 'Bảng điều khiển', icon: LayoutDashboard }],
+    tieuDe: 'menu.nhomTongQuan',
+    muc: [{ duongDan: '/', nhan: 'menu.bangDieuKhien', icon: LayoutDashboard }],
   },
   {
-    tieuDe: 'Khách hàng',
+    tieuDe: 'menu.nhomKhachHang',
     muc: [
-      { duongDan: '/khach-hang', nhan: 'Danh sách khách', icon: Users },
-      { duongDan: '/so-do', nhan: 'Hồ sơ số đo', icon: Ruler },
-      { duongDan: '/don-online', nhan: 'Đơn đặt online', icon: Globe },
+      { duongDan: '/khach-hang', nhan: 'menu.danhSachKhach', icon: Users },
+      { duongDan: '/so-do', nhan: 'menu.hoSoSoDo', icon: Ruler },
     ],
   },
   {
-    tieuDe: 'Sản xuất',
+    tieuDe: 'menu.nhomSanXuat',
     muc: [
-      { duongDan: '/don-hang', nhan: 'Đơn hàng', icon: ShoppingBag },
-      { duongDan: '/thu-vien-mau', nhan: 'Thư viện mẫu', icon: Images },
-      { duongDan: '/kho', nhan: 'Kho vải & phụ liệu', icon: Package },
+      { duongDan: '/don-hang', nhan: 'menu.donHang', icon: ShoppingBag },
+      { duongDan: '/kho', nhan: 'menu.kho', icon: Package },
     ],
   },
   {
-    tieuDe: 'Tài chính',
+    tieuDe: 'menu.nhomTaiChinh',
     muc: [
-      { duongDan: '/thanh-toan', nhan: 'Thanh toán & công nợ', icon: Wallet },
+      { duongDan: '/thanh-toan', nhan: 'menu.thanhToan', icon: Wallet },
       {
         duongDan: '/bao-cao',
-        nhan: 'Báo cáo doanh thu',
+        nhan: 'menu.baoCao',
         icon: ChartColumn,
         chiDanhCho: ['quan_tri', 'quan_ly'],
       },
       {
         duongDan: '/nhat-ky',
-        nhan: 'Nhật ký hoạt động',
+        nhan: 'menu.nhatKy',
         icon: ScrollText,
         chiDanhCho: ['quan_tri', 'quan_ly'],
       },
     ],
   },
   {
-    tieuDe: 'Hệ thống',
+    tieuDe: 'menu.nhomHeThong',
     muc: [
-      { duongDan: '/in-phieu', nhan: 'In phiếu', icon: Printer },
-      { duongDan: '/giao-dien', nhan: 'Giao diện', icon: Palette },
-      { duongDan: '/cai-dat', nhan: 'Cài đặt', icon: Settings, chiDanhCho: ['quan_tri'] },
+      { duongDan: '/in-phieu', nhan: 'menu.inPhieu', icon: Printer },
+      { duongDan: '/giao-dien', nhan: 'menu.giaoDien', icon: Palette },
+      { duongDan: '/cai-dat', nhan: 'menu.caiDat', icon: Settings, chiDanhCho: ['quan_tri'] },
     ],
   },
 ]

@@ -5,12 +5,14 @@ import { Topbar } from './Topbar'
 import { useAuth } from '@/auth/AuthProvider'
 import { useCaiDat } from '@/data/heThong'
 import { DangTaiToanTrang } from '@/components/BaoVe'
+import { useT } from '@/i18n'
 
 export function AppLayout() {
   const [moMenu, setMoMenu] = useState(false)
   const viTri = useLocation()
   const { hoSo } = useAuth()
   const { data: caiDat } = useCaiDat()
+  const { t: dich } = useT()
 
   // Chuyển trang thì tự đóng menu trên điện thoại
   useEffect(() => {
@@ -18,9 +20,9 @@ export function AppLayout() {
   }, [viTri.pathname])
 
   // Đã có phiên đăng nhập nhưng hồ sơ nhân sự chưa tải xong
-  if (!hoSo) return <DangTaiToanTrang loi="Đang tải hồ sơ tài khoản…" />
+  if (!hoSo) return <DangTaiToanTrang loi={dich('chung.dangTaiDuLieu')} />
 
-  const tenTiem = caiDat?.ten_tiem?.trim() || 'MAY ĐO QUẢN LÝ'
+  const tenTiem = caiDat?.ten_tiem?.trim() || dich('chung.tenTiemMacDinh')
 
   return (
     <div className="min-h-dvh bg-slate-100">

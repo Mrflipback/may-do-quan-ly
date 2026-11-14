@@ -4,6 +4,7 @@ import {
   ChevronDown,
   Download,
   Eraser,
+  LogIn,
   Pencil,
   ScrollText,
   Trash2,
@@ -30,6 +31,7 @@ import {
 import { chuCaiDau, cn, dinhDangSo, dinhDangTien } from '@/lib/utils'
 import { dichLoi } from '@/lib/loi'
 import { useAuth } from '@/auth/AuthProvider'
+import { NhatKyDangNhap } from '@/components/NhatKyDangNhap'
 import { useDanhSachNguoiDung } from '@/data/heThong'
 import {
   SO_DONG_MOI_TRANG,
@@ -231,6 +233,10 @@ export function NhatKyPage() {
     bang: '',
     chiTien: false,
   })
+  /* Hai thẻ: việc làm trên dữ liệu, và chuyện ra vào phần mềm.
+     Thẻ đăng nhập chỉ Quản trị viên thấy — giờ giấc và IP của từng
+     người là chuyện riêng tư, không để Quản lý xem. */
+  const [the, setThe] = useState<'hoat_dong' | 'dang_nhap'>('hoat_dong')
   const [trang, setTrang] = useState(0)
   const [dangTaiFile, setDangTaiFile] = useState(false)
   const [hoiDon, setHoiDon] = useState(false)
@@ -289,19 +295,64 @@ export function NhatKyPage() {
   return (
     <div>
       <PageHeader
-        tieuDe="Nhật ký hoạt động"
-        moTa="Ai đã làm gì, lúc nào, số tiền bao nhiêu — ghi tự động, không ai sửa được"
+        tieuDe="Nhật ký"
+        moTa={
+          the === 'hoat_dong'
+            ? 'Ai đã làm gì, lúc nào, số tiền bao nhiêu — ghi tự động, không ai sửa được'
+            : 'Ai vào phần mềm, lúc nào, từ địa chỉ nào — do máy chủ tự ghi'
+        }
         hanhDong={
-          <Button
-            kieu="phu"
-            iconTrai={<Download className="size-4" />}
-            onClick={() => void taiFile()}
-            dangTai={dangTaiFile}
-          >
-            Tải ra Excel
-          </Button>
+          the === 'hoat_dong' ? (
+            <Button
+              kieu="phu"
+              iconTrai={<Download className="size-4" />}
+              onClick={() => void taiFile()}
+              dangTai={dangTaiFile}
+            >
+              Tải ra Excel
+            </Button>
+          ) : undefined
         }
       />
+
+      {/* ------------------------------ Hai thẻ ------------------------------ */}
+      {laQuanTri && (
+        <div
+          role="tablist"
+          aria-label="Loại nhật ký"
+          className="mb-5 inline-flex rounded-xl bg-slate-100 p-1"
+        >
+          {(
+            [
+              { ma: 'hoat_dong', nhan: 'Hoạt động', Hinh: ScrollText },
+              { ma: 'dang_nhap', nhan: 'Đăng nhập', Hinh: LogIn },
+            ] as const
+          ).map(({ ma, nhan, Hinh }) => (
+            <button
+              key={ma}
+              type="button"
+              role="tab"
+              data-the={ma}
+              aria-selected={the === ma}
+              onClick={() => setThe(ma)}
+              className={cn(
+                'inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all',
+                the === ma
+                  ? 'bg-paper text-slate-900 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-700',
+              )}
+            >
+              <Hinh className="size-4" />
+              {nhan}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {the === 'dang_nhap' && laQuanTri && <NhatKyDangNhap />}
+
+      {the === 'hoat_dong' && (
+        <>
 
       {/* ----------------------------- Bộ lọc ----------------------------- */}
       <Card className="mb-5">
@@ -565,6 +616,8 @@ export function NhatKyPage() {
           )}
         </div>
       </div>
+        </>
+      )}
 
       <HopThoaiXacNhan
         moRa={hoiDon}

@@ -7,7 +7,7 @@ import { Input, Textarea } from '@/components/ui/Field'
 import { BaoLoi, DangTaiBang } from '@/components/ui/TrangThaiTai'
 import { useThongBao } from '@/components/ui/ThongBao'
 import { useCaiDat, useLuuCaiDat } from '@/data/heThong'
-import { BANG_GIA_MAU } from '@/data/datMayOnline'
+import { BANG_GIA_MAU } from '@/data/thongTinTiem'
 import { dichLoi } from '@/lib/loi'
 import type { DongBangGia } from '@/types'
 

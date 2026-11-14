@@ -8,9 +8,8 @@ import { queryClient } from './chung'
  * Sao lưu  : tải toàn bộ các bảng về máy thành MỘT file JSON.
  * Khôi phục: đọc lại file đó và nạp ngược lên Supabase.
  *
- * ĐIỀU QUAN TRỌNG NHẤT PHẢI BIẾT: file sao lưu KHÔNG chứa ảnh. Ảnh nằm
- * trong mục Storage của Supabase. Khôi phục xong, dữ liệu về đủ nhưng
- * ảnh mẫu và ảnh khách sẽ trống nếu kho ảnh đã mất.
+ * ĐIỀU QUAN TRỌNG NHẤT PHẢI BIẾT: file sao lưu chỉ chứa dữ liệu trong
+ * các bảng, không chứa file nào khác nằm trong mục Storage của Supabase.
  */
 
 /* ------------------------------------------------------------------ */
@@ -23,13 +22,11 @@ const KHOA_CHINH: Record<string, string> = {
   nguoi_dung: 'id',
   khach_hang: 'id',
   ho_so_so_do: 'id',
-  anh_mau: 'id',
   don_hang: 'id',
   dong_san_pham: 'id',
   thanh_toan: 'id',
   vat_tu: 'id',
   giao_dich_kho: 'id',
-  don_online: 'id',
 }
 
 /**
@@ -44,13 +41,11 @@ export const THU_TU_NAP = [
   'nguoi_dung',
   'khach_hang',
   'ho_so_so_do',
-  'anh_mau',
   'vat_tu',
   'don_hang',
   'dong_san_pham',
   'thanh_toan',
   'giao_dich_kho',
-  'don_online',
 ] as const
 
 export type TenBang = (typeof THU_TU_NAP)[number]
@@ -61,17 +56,15 @@ export const NHAN_BANG: Record<TenBang, string> = {
   nguoi_dung: 'Tài khoản nhân sự',
   khach_hang: 'Khách hàng',
   ho_so_so_do: 'Hồ sơ số đo',
-  anh_mau: 'Ảnh mẫu',
   vat_tu: 'Kho vải & phụ liệu',
   don_hang: 'Đơn hàng',
   dong_san_pham: 'Dòng sản phẩm trong đơn',
   thanh_toan: 'Thanh toán',
   giao_dich_kho: 'Xuất nhập kho',
-  don_online: 'Đơn đặt online',
 }
 
 /** Bảng chưa chắc đã có (phải chạy file SQL 05 mới sinh ra). */
-const BANG_CO_THE_THIEU: TenBang[] = ['don_online']
+const BANG_CO_THE_THIEU: TenBang[] = []
 
 /* ------------------------------------------------------------------ */
 /*  Sao lưu                                                            */
@@ -226,8 +219,6 @@ export interface LuaChonKhoiPhuc {
    *         lấy theo file
    */
   xoaTruoc: boolean
-  /** Có nạp lại danh mục ảnh mẫu không (ảnh thật không nằm trong file). */
-  napAnhMau: boolean
 }
 
 export interface TienDo {
@@ -281,7 +272,6 @@ export async function khoiPhucDuLieu(
       // KHÔNG bao giờ xoá tài khoản nhân sự. Xoá là cả tiệm mất quyền
       // vào phần mềm, kể cả chính người đang bấm nút.
       if (bang === 'nguoi_dung') continue
-      if (bang === 'anh_mau' && !chon.napAnhMau) continue
 
       const khoa = KHOA_CHINH[bang]
       const { error } = await supabase.from(bang).delete().not(khoa, 'is', null)
@@ -298,16 +288,6 @@ export async function khoiPhucDuLieu(
 
   for (const bang of canNap) {
     const ds = goi.du_lieu[bang] as Record<string, unknown>[]
-
-    if (bang === 'anh_mau' && !chon.napAnhMau) {
-      kq.boQua.push({
-        nhan: NHAN_BANG[bang],
-        soDong: ds.length,
-        viSao: 'bạn chọn không nạp lại ảnh mẫu',
-      })
-      nhich(`Bỏ qua ${NHAN_BANG[bang]}`)
-      continue
-    }
 
     let canGui = ds
 
@@ -385,13 +365,6 @@ export async function khoiPhucDuLieu(
     kq.soDemDaChinh = true
   }
   nhich('Xong')
-
-  if (kq.daNap.some((d) => d.nhan === NHAN_BANG.anh_mau)) {
-    kq.canhBao.push(
-      'Danh mục ảnh mẫu đã nạp lại, nhưng file sao lưu không chứa ảnh. ' +
-        'Ảnh nào đã mất khỏi kho Storage của Supabase thì ô ảnh sẽ trống.',
-    )
-  }
 
   // Dọn bộ nhớ đệm để mọi màn hình đọc lại dữ liệu mới
   await queryClient.invalidateQueries()

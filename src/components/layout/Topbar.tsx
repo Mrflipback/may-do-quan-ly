@@ -6,7 +6,9 @@ import { NHAN_VAI_TRO } from '@/lib/constants'
 import { useAuth } from '@/auth/AuthProvider'
 import { useThongBao } from '@/components/ui/ThongBao'
 import { dichLoi } from '@/lib/loi'
-import { NHAN_GIAO_DIEN, useGiaoDien, type ChoDoGiaoDien } from '@/lib/giaoDien'
+import { useT } from '@/i18n'
+import { useGiaoDien, type ChoDoGiaoDien } from '@/lib/giaoDien'
+import { useNhanGiaoDien } from '@/i18n/nhan'
 import type { NguoiDung } from '@/types'
 
 /** Bấm nút tròn trên thanh: Sáng -> Tối -> Theo máy -> Sáng… */
@@ -27,7 +29,9 @@ export function Topbar({ nguoiDung, moMenu }: TopbarProps) {
   const vungTaiKhoan = useRef<HTMLDivElement>(null)
   const dieuHuong = useNavigate()
   const { dangXuat, laQuanTri } = useAuth()
+  const { t: dich } = useT()
   const { cai, doiCheDo } = useGiaoDien()
+  const { NHAN_GIAO_DIEN } = useNhanGiaoDien()
   const che = cai.che
   const tb = useThongBao()
 
@@ -63,7 +67,7 @@ export function Topbar({ nguoiDung, moMenu }: TopbarProps) {
       <button
         type="button"
         onClick={moMenu}
-        aria-label="Mở menu"
+        aria-label={dich('chung.moMenu')}
         className="-ml-1 rounded-lg p-2 text-slate-600 transition-colors hover:bg-slate-100 lg:hidden"
       >
         <Menu className="size-5" />
@@ -75,8 +79,8 @@ export function Topbar({ nguoiDung, moMenu }: TopbarProps) {
           type="search"
           value={tuKhoa}
           onChange={(e) => setTuKhoa(e.target.value)}
-          placeholder="Tìm khách hàng theo tên hoặc số điện thoại…"
-          aria-label="Tìm kiếm nhanh"
+          placeholder={dich('chung.timKhachGoiY')}
+          aria-label={dich('chung.timKiemNhanh')}
           className="h-10 w-full rounded-lg bg-slate-100 pr-3 pl-9 text-sm text-slate-900 ring-1 ring-transparent transition placeholder:text-slate-400 focus:bg-paper focus:ring-brand-500 focus:outline-none"
         />
       </form>
@@ -86,8 +90,8 @@ export function Topbar({ nguoiDung, moMenu }: TopbarProps) {
       <button
         type="button"
         onClick={() => doiCheDo(KE_TIEP[che])}
-        aria-label={`Giao diện: ${NHAN_GIAO_DIEN[che]}. Bấm để đổi.`}
-        title={`Giao diện: ${NHAN_GIAO_DIEN[che]}`}
+        aria-label={`${dich('menu.giaoDien')}: ${NHAN_GIAO_DIEN[che]}`}
+        title={`${dich('menu.giaoDien')}: ${NHAN_GIAO_DIEN[che]}`}
         className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700"
       >
         {che === 'sang' ? (
@@ -133,7 +137,7 @@ export function Topbar({ nguoiDung, moMenu }: TopbarProps) {
             </div>
 
             <div className="border-b border-slate-100 px-4 py-2">
-              <p className="mb-1.5 text-[11px] font-medium text-slate-400">Nền sáng / tối</p>
+              <p className="mb-1.5 text-[11px] font-medium text-slate-400">{dich('giaoDien.nenSang')} / {dich('giaoDien.nenToi')}</p>
               <div className="flex gap-1">
                 {(['sang', 'toi', 'theo_may'] as ChoDoGiaoDien[]).map((c) => (
                   <button
@@ -159,7 +163,7 @@ export function Topbar({ nguoiDung, moMenu }: TopbarProps) {
               className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 transition-colors hover:bg-slate-50"
             >
               <Palette className="size-4 text-slate-400" />
-              Giao diện &amp; hiệu ứng
+              {dich('menu.giaoDien')}
             </Link>
 
             {laQuanTri && (
@@ -169,7 +173,7 @@ export function Topbar({ nguoiDung, moMenu }: TopbarProps) {
                 className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 transition-colors hover:bg-slate-50"
               >
                 <Settings className="size-4 text-slate-400" />
-                Cài đặt
+                {dich('menu.caiDat')}
               </Link>
             )}
 
@@ -179,7 +183,7 @@ export function Topbar({ nguoiDung, moMenu }: TopbarProps) {
               className="flex w-full items-center gap-2.5 px-4 py-2.5 text-sm text-rose-600 transition-colors hover:bg-rose-50"
             >
               <LogOut className="size-4" />
-              Đăng xuất
+              {dich('chung.dangXuat')}
             </button>
           </div>
         )}

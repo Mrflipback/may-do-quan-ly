@@ -15,9 +15,7 @@ export const queryClient = new QueryClient({
 export const KHOA = {
   khachHang: ['khach-hang'] as const,
   soDo: ['so-do'] as const,
-  anhMau: ['anh-mau'] as const,
   donHang: ['don-hang'] as const,
-  donOnline: ['don-online'] as const,
   vatTu: ['vat-tu'] as const,
   giaoDichKho: ['giao-dich-kho'] as const,
   thanhToan: ['thanh-toan'] as const,
@@ -26,6 +24,7 @@ export const KHOA = {
   caiDat: ['cai-dat'] as const,
   nguoiDung: ['nguoi-dung'] as const,
   nhatKy: ['nhat-ky'] as const,
+  dangNhap: ['nhat-ky-dang-nhap'] as const,
 }
 
 /** Làm mới mọi thứ liên quan tới tiền, vì chúng phụ thuộc lẫn nhau. */

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
-import { MAU_TRANG_THAI, NHAN_TRANG_THAI } from '@/lib/constants'
+import { MAU_TRANG_THAI } from '@/lib/constants'
+import { useNhan } from '@/i18n/nhan'
 import type { TrangThaiDonHang } from '@/types'
 
 interface BadgeProps {
@@ -22,5 +23,6 @@ export function Badge({ children, className }: BadgeProps) {
 }
 
 export function BadgeTrangThai({ trangThai }: { trangThai: TrangThaiDonHang }) {
+  const { NHAN_TRANG_THAI } = useNhan()
   return <Badge className={MAU_TRANG_THAI[trangThai]}>{NHAN_TRANG_THAI[trangThai]}</Badge>
 }

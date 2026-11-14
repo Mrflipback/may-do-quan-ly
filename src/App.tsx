@@ -10,7 +10,6 @@ import { AppLayout } from '@/components/layout/AppLayout'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { CustomersPage } from '@/pages/CustomersPage'
 import { MeasurementsPage } from '@/pages/MeasurementsPage'
-import { GalleryPage } from '@/pages/GalleryPage'
 import { OrdersPage } from '@/pages/OrdersPage'
 import { InventoryPage } from '@/pages/InventoryPage'
 import { PaymentsPage } from '@/pages/PaymentsPage'
@@ -20,8 +19,8 @@ import { SettingsPage } from '@/pages/SettingsPage'
 import { NhatKyPage } from '@/pages/NhatKyPage'
 import { GiaoDienPage } from '@/pages/GiaoDienPage'
 import { LoginPage } from '@/pages/LoginPage'
-import { OnlineOrdersPage } from '@/pages/OnlineOrdersPage'
 import { ShopPage } from '@/pages/ShopPage'
+
 import { NotFoundPage } from '@/pages/NotFoundPage'
 
 /**
@@ -48,7 +47,7 @@ export function App() {
             <Routes>
               <Route path="/dang-nhap" element={<LoginPage />} />
 
-              {/* Trang cong khai cho khach: xem san pham, bang gia va dat may */}
+              {/* Trang gioi thieu cong khai: san pham, bang gia, dia chi */}
               <Route path="/tiem" element={<ShopPage />} />
 
               <Route
@@ -61,9 +60,7 @@ export function App() {
                 <Route path="/" element={<DashboardPage />} />
                 <Route path="/khach-hang" element={<CustomersPage />} />
                 <Route path="/so-do" element={<MeasurementsPage />} />
-                <Route path="/thu-vien-mau" element={<GalleryPage />} />
                 <Route path="/don-hang" element={<OrdersPage />} />
-                <Route path="/don-online" element={<OnlineOrdersPage />} />
                 <Route path="/kho" element={<InventoryPage />} />
                 <Route path="/thanh-toan" element={<PaymentsPage />} />
                 <Route path="/in-phieu" element={<PrintPage />} />

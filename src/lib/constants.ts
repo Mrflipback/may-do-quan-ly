@@ -127,7 +127,6 @@ export const NHAN_BANG_NHAT_KY: Record<string, string> = {
   khach_hang: 'Khách hàng',
   nguoi_dung: 'Tài khoản',
   cai_dat: 'Cài đặt',
-  don_online: 'Đơn đặt online',
   nhat_ky: 'Nhật ký',
 }
 

@@ -17,13 +17,8 @@ import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 import { useThongBao } from '@/components/ui/ThongBao'
 import { cn } from '@/lib/utils'
+import { useNhanGiaoDien } from '@/i18n/nhan'
 import {
-  HIEU_UNG,
-  MAU_CHU_DAO,
-  NHAN_BO_GOC,
-  NHAN_CO_CHU,
-  NHAN_GIAO_DIEN,
-  NHAN_TOC_DO,
   apDung,
   mayGiamChuyenDong,
   useGiaoDien,
@@ -123,6 +118,8 @@ function KhungXemThu({ lanThu, dangChayThu }: { lanThu: number; dangChayThu: str
 export function GiaoDienPage() {
   const tb = useThongBao()
   const { cai, doi, traVeMacDinh } = useGiaoDien()
+  const { NHAN_GIAO_DIEN, MAU_CHU_DAO, NHAN_CO_CHU, NHAN_BO_GOC, HIEU_UNG, NHAN_TOC_DO } =
+    useNhanGiaoDien()
 
   /** Tăng lên mỗi lần bấm một lựa chọn, để khung xem thử chạy lại. */
   const [lanThu, setLanThu] = useState(0)

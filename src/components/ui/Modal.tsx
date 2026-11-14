@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useT } from '@/i18n'
 
 interface ModalProps {
   moRa: boolean
@@ -30,6 +31,7 @@ export function Modal({
   chanTrang,
   coLon = 'vua',
 }: ModalProps) {
+  const { t: dich } = useT()
   // Bấm phím Esc để đóng
   useEffect(() => {
     if (!moRa) return
@@ -57,7 +59,7 @@ export function Modal({
       {/* Lớp nền mờ */}
       <button
         type="button"
-        aria-label="Đóng hộp thoại"
+        aria-label={dich('chung.dongHopThoai')}
         onClick={dong}
         className="absolute inset-0 bg-slate-900/50 backdrop-blur-[2px]"
       />
@@ -79,7 +81,7 @@ export function Modal({
           <button
             type="button"
             onClick={dong}
-            aria-label="Đóng"
+            aria-label={dich('chung.dong')}
             className="-mr-1.5 -mt-1 rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
           >
             <X className="size-5" />

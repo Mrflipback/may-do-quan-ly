@@ -58,13 +58,15 @@ npm run dev
 | **Bảng điều khiển** | Doanh thu tháng, đơn đang may, đơn trễ hẹn, công nợ, vật tư sắp hết |
 | **Khách hàng** | Thêm / sửa / xóa, tìm kiếm không dấu, theo dõi chi tiêu và công nợ |
 | **Hồ sơ số đo** | 20 chỉ số, lưu **nhiều lần đo** cho mỗi khách, xem lại lịch sử |
-| **Thư viện mẫu** | Tải ảnh mẫu lên, phân loại theo trang phục, gắn thẻ |
 | **Đơn hàng** | Nhiều sản phẩm trong một đơn, đổi trạng thái, cảnh báo trễ hẹn |
 | **Kho** | Vải và phụ liệu, phiếu nhập / xuất, tồn kho tự tính, cảnh báo hết hàng |
 | **Thanh toán** | Tiền cọc, thu nhiều lần, theo dõi công nợ từng đơn |
 | **Báo cáo** | Doanh thu theo ngày / tháng / năm, xuất Excel, in báo cáo |
 | **In phiếu** | Phiếu số đo, phiếu đơn hàng, phiếu thanh toán — khổ A4 |
-| **Cài đặt** | Thông tin tiệm, phân quyền nhân sự, sao lưu dữ liệu |
+| **Nhật ký** | Ai sửa gì, lúc nào, tiền trước và sau — lọc theo người, bảng, hành động. Thêm thẻ **Đăng nhập**: ai vào, lúc nào, từ IP nào (chỉ Quản trị viên) |
+| **Giao diện** | Màu chủ đạo, cỡ chữ, bộ góc, hiệu ứng — mỗi người một kiểu riêng |
+| **Cài đặt** | Thông tin tiệm, phân quyền nhân sự, sao lưu và khôi phục dữ liệu |
+| **Trang giới thiệu** | Trang công khai `/tiệm` cho khách xem: mặt hàng, bảng giá, địa chỉ — 7 thứ tiếng |
 
 ---
 

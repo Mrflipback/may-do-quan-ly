@@ -86,45 +86,73 @@ export function phanTramThayDoi(hienTai: number, truocDo: number): number {
 /* ------------------------- Tên tài khoản ------------------------- */
 
 /**
- * Những ký tự KHÔNG được có trong tên tài khoản.
- * Giữ đúng danh sách này trùng với ràng buộc ck_ho_ten_khong_ky_tu_la
- * trong file supabase/06_phan_quyen_quan_ly.sql.
+ * QUY TẮC ĐẶT TÊN TÀI KHOẢN
+ * ------------------------------------------------------------------
+ *   ĐƯỢC : chữ của mọi thứ tiếng (kể cả Trung, Thái, Khmer, Ấn…),
+ *           chữ số, khoảng trắng, và ba dấu hay có trong tên người:
+ *           dấu chấm, gạch ngang, nháy đơn.
+ *
+ *   KHÔNG : dấu tiếng Việt   — à á ả ã ạ ă â đ ê ô ơ ư…
+ *           dấu toán học   — + − × ÷ = < > % ^ *
+ *           dấu câu văn học — “ ” ‘ ’ — – … ! ? , ; :
+ *
+ *     ĐƯỢC : Nguyen Van An  ·  Tran Thi Mai-Anh  ·  Le Van Duc Jr.
+ *     KHÔNG: Nguyễn Văn An  ·  Tho may #1  ·  Le "Bob" Tran
  */
-export const KY_TU_CAM = '<>@#$%^&*()_+={}[]|\\/:;"`~!?,'
 
 /**
- * Kiểm tra tên tài khoản. Trả về chuỗi rỗng nghĩa là tên hợp lệ.
+ * DẢI CHỮ CÓ DẤU.
  *
- * Cho phép chữ (kể cả chữ có dấu tiếng Việt), số, khoảng trắng, dấu chấm,
- * gạch ngang và nháy đơn — đủ cho mọi cái tên người Việt, ví dụ
- * "Nguyễn Văn An", "Trần Thị Mai-Anh", "Lê Văn Đức Jr.".
+ * Gồm chữ La-tinh mang dấu và cả những "dấu rời" đứng sau chữ — vì bộ
+ * gõ tiếng Việt có kiểu gõ ra một chữ "ễ" liền một cục, cũng có kiểu gõ ra
+ * "e" rồi mới thêm dấu. Nhìn bằng mắt thấy y hệt nhau, nên phải bắt cả hai.
+ *
+ * Giữ đúng dải này trùng với ràng buộc ck_ho_ten_khong_dau trong
+ * supabase/06_phan_quyen_quan_ly.sql.
  */
+const CO_DAU = /[\u00C0-\u024F\u0300-\u036F\u1E00-\u1EFF]/
+
+/** Chỉ cho chữ, số, khoảng trắng và ba dấu hay có trong tên người. */
+const CHO_PHEP = /^[\p{L}\p{N} .'-]+$/u
+
+/** Kiểm tra tên tài khoản. Trả về chuỗi rỗng nghĩa là tên hợp lệ. */
 export function loiTenTaiKhoan(ten: string): string {
   const t = ten.trim()
   if (!t) return 'Bạn chưa nhập họ tên.'
   if (t.length < 2) return 'Họ tên quá ngắn, cần ít nhất 2 ký tự.'
   if (t.length > 60) return 'Họ tên quá dài, tối đa 60 ký tự.'
 
-  const xau = Array.from(t).filter((c) => KY_TU_CAM.includes(c))
-  if (xau.length > 0) {
-    const ds = Array.from(new Set(xau)).join(' ')
-    return `Họ tên không được có ký tự đặc biệt: ${ds}`
+  // Tách chữ và dấu ra trước khi soi, để bắt được cả hai kiểu gõ
+  if (CO_DAU.test(t.normalize('NFD'))) {
+    return `Họ tên phải viết KHÔNG DẤU. Bạn thử gõ: “${boDauTenTaiKhoan(t)}”`
   }
 
-  // Chặn nốt những ký tự lạ còn sót (biểu tượng cảm xúc, ký hiệu toán…)
-  if (!/^[\p{L}\p{N} .'-]+$/u.test(t)) {
-    return 'Họ tên chỉ được gồm chữ, số, khoảng trắng và dấu chấm, gạch ngang.'
+  if (!CHO_PHEP.test(t)) {
+    const xau = Array.from(new Set(Array.from(t).filter((c) => !CHO_PHEP.test(c)))).join(' ')
+    return `Họ tên không được có dấu toán học hay dấu câu: ${xau}`
   }
+
   if (!/^[\p{L}\p{N}]/u.test(t)) return 'Họ tên phải bắt đầu bằng chữ hoặc số.'
 
   return ''
 }
 
-/** Gột sạch ký tự đặc biệt khỏi một cái tên, dùng khi muốn tự sửa giúp. */
-export function gotTenTaiKhoan(ten: string): string {
-  return Array.from(ten)
-    .filter((c) => !KY_TU_CAM.includes(c))
-    .join('')
+/**
+ * Bỏ dấu khỏi một cái tên, GIỮ NGUYÊN chữ hoa chữ thường.
+ * "Nguyễn Văn Đức" -> "Nguyen Van Duc"
+ *
+ * Khác hàm boDau() ở trên: hàm kia hạ hết thành chữ thường vì dùng để tìm
+ * kiếm, còn đây là tên người nên phải giữ chữ hoa.
+ */
+export function boDauTenTaiKhoan(ten: string): string {
+  return ten
+    .normalize('NFD')
+    .replace(/[\u0300-\u036F]/g, '')
+    .replace(/\u0111/g, 'd')
+    .replace(/\u0110/g, 'D')
     .replace(/\s+/g, ' ')
     .trim()
 }
+
+/** Tên cũ của hàm trên, giữ lại cho chỗ nào lỡ còn gọi. */
+export const gotTenTaiKhoan = boDauTenTaiKhoan

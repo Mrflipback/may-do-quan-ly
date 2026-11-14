@@ -48,8 +48,3 @@ export const supabase: SupabaseClient = createClient(
   },
 )
 
-/** Hai kho ảnh đã tạo ở file 02_storage.sql. */
-export const KHO_ANH = {
-  khach: 'anh-khach',
-  mau: 'anh-mau',
-} as const

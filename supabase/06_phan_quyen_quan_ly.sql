@@ -52,29 +52,35 @@ $ham$;
 
 
 -- =====================================================================
---  C. TÊN TÀI KHOẢN KHÔNG ĐƯỢC CÓ KÝ TỰ ĐẶC BIỆT
+--  C. TÊN TÀI KHOẢN PHẢI VIẾT KHÔNG DẤU
 -- =====================================================================
---  Cho phép: chữ (có dấu tiếng Việt), số, khoảng trắng, dấu chấm,
---            dấu gạch ngang, dấu nháy đơn  —  ví dụ: Nguyễn Văn An
---  Cấm:      < > @ # $ % ^ & * ( ) _ + = { } [ ] | \ / : ; " ` ~ ! ? ,
+--      ĐƯỢC : Nguyen Van An  ·  Tran Thi Mai-Anh  ·  Le Van Duc Jr.
+--      KHÔNG: Nguyễn Văn An  ·  Trần Thị Mai
 --
---  Cách kiểm: xoá hết ký tự cấm khỏi tên; nếu tên không đổi nghĩa là
---  tên sạch. Cách này không phụ thuộc bảng mã nên chữ có dấu luôn qua.
+--  Ràng buộc dưới đây chỉ lo đúng MỘT việc: chặn dấu tiếng Việt.
+--  Phần cấm dấu toán học và dấu câu do phần mềm lo, viết trong
+--  src/lib/utils.ts. Làm vậy vì cách Postgres hiểu "thế nào là chữ"
+--  phụ thuộc cài đặt ngôn ngữ của máy chủ — đặt luật chặt ở đó có thể
+--  vô tình chặn luôn tên tiếng Trung, Thái, Khmer của nhân viên.
 --
---  "not valid" = chỉ soi tên mới và tên sửa lại, không đụng tên cũ đã
---  có sẵn trong bảng, nên chạy file này không làm hỏng dữ liệu đang có.
+--  "not valid" = chỉ soi tên mới và tên sửa lại, không đụng tên cũ đã có
+--  sẵn trong bảng, nên chạy file này không làm hỏng dữ liệu đang có.
 
+-- Bỏ ràng buộc CŨ (cấm ký tự đặc biệt, cho phép dấu) — nay đã đổi quy tắc
 alter table public.nguoi_dung
   drop constraint if exists ck_ho_ten_khong_ky_tu_la;
 
 alter table public.nguoi_dung
-  add constraint ck_ho_ten_khong_ky_tu_la
-  check (ho_ten = translate(ho_ten, '<>@#$%^&*()_+={}[]|\/:;"`~!?,', ''))
+  drop constraint if exists ck_ho_ten_khong_dau;
+
+alter table public.nguoi_dung
+  add constraint ck_ho_ten_khong_dau
+  check (ho_ten !~ '[\u00C0-\u024F\u0300-\u036F\u1E00-\u1EFF]')
   not valid;
 
 
--- Tài khoản mới đăng ký: tự gột sạch ký tự lạ trong tên trước khi lưu,
--- để người dùng không bao giờ bị lỗi khó hiểu lúc tạo tài khoản.
+-- Tài khoản mới đăng ký: tự bỏ dấu trong tên trước khi lưu, để không ai
+-- bị lỗi khó hiểu lúc tạo tài khoản. Dấu rời xoá hẳn, đ thành d, Đ thành D.
 create or replace function public.xu_ly_nguoi_dung_moi()
 returns trigger
 language plpgsql
@@ -87,16 +93,18 @@ declare
 begin
   select count(*) into so_nguoi_hien_co from public.nguoi_dung;
 
-  ten_sach := translate(
-    coalesce(nullif(trim(new.raw_user_meta_data ->> 'ho_ten'), ''),
-             split_part(new.email, '@', 1)),
-    '<>@#$%^&*()_+={}[]|\/:;"`~!?,', '');
+  ten_sach := coalesce(nullif(trim(new.raw_user_meta_data ->> 'ho_ten'), ''),
+                       split_part(new.email, '@', 1));
+
+  -- normalize(.., NFD) tách chữ và dấu ra, rồi regexp_replace xoá dấu đi
+  ten_sach := regexp_replace(normalize(ten_sach, NFD), '[\u0300-\u036F]', '', 'g');
+  ten_sach := translate(ten_sach, '\u0111\u0110', 'dD');
   ten_sach := nullif(trim(ten_sach), '');
 
   insert into public.nguoi_dung (id, ho_ten, email, vai_tro)
   values (
     new.id,
-    coalesce(ten_sach, 'Người dùng mới'),
+    coalesce(ten_sach, 'Nguoi dung moi'),
     new.email,
     case when so_nguoi_hien_co = 0 then 'quan_tri' else 'nhan_vien' end
   )

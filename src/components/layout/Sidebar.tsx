@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom'
 import { Scissors, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { menuTheoVaiTro } from './nav'
+import { useT } from '@/i18n'
 import type { VaiTro } from '@/types'
 
 interface SidebarProps {
@@ -13,6 +14,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ vaiTro, tenTiem, moTrenDienThoai, dong }: SidebarProps) {
+  const { t: dich } = useT()
   const nhomMenu = menuTheoVaiTro(vaiTro)
 
   return (
@@ -21,7 +23,7 @@ export function Sidebar({ vaiTro, tenTiem, moTrenDienThoai, dong }: SidebarProps
       {moTrenDienThoai && (
         <button
           type="button"
-          aria-label="Đóng menu"
+          aria-label={dich('chung.dongMenu')}
           onClick={dong}
           className="fixed inset-0 z-30 bg-slate-900/50 lg:hidden"
         />
@@ -49,7 +51,7 @@ export function Sidebar({ vaiTro, tenTiem, moTrenDienThoai, dong }: SidebarProps
           <button
             type="button"
             onClick={dong}
-            aria-label="Đóng menu"
+            aria-label={dich('chung.dongMenu')}
             className="rounded-lg p-1.5 text-brand-200 hover:bg-white/10 hover:text-white lg:hidden"
           >
             <X className="size-5" />
@@ -61,7 +63,7 @@ export function Sidebar({ vaiTro, tenTiem, moTrenDienThoai, dong }: SidebarProps
           {nhomMenu.map((nhom) => (
             <div key={nhom.tieuDe} className="mb-5 last:mb-0">
               <p className="mb-1.5 px-3 text-[11px] font-semibold tracking-wider text-brand-300 uppercase">
-                {nhom.tieuDe}
+                {dich(nhom.tieuDe)}
               </p>
               <ul className="space-y-0.5">
                 {nhom.muc.map((muc) => (
@@ -80,7 +82,7 @@ export function Sidebar({ vaiTro, tenTiem, moTrenDienThoai, dong }: SidebarProps
                       }
                     >
                       <muc.icon className="size-[18px] shrink-0" />
-                      <span className="truncate">{muc.nhan}</span>
+                      <span className="truncate">{dich(muc.nhan)}</span>
                     </NavLink>
                   </li>
                 ))}
@@ -91,7 +93,7 @@ export function Sidebar({ vaiTro, tenTiem, moTrenDienThoai, dong }: SidebarProps
 
         <div className="shrink-0 border-t border-white/10 px-4 py-3">
           <p className="text-[11px] text-brand-300">
-            Dữ liệu lưu trên Supabase · Phiên bản 1.0
+            {dich('chung.luuTru')}
           </p>
         </div>
       </aside>

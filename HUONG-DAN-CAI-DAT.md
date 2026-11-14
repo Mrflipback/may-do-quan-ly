@@ -55,10 +55,12 @@ Làm **y hệt** với những file sau, theo đúng thứ tự:
 | `02_storage.sql` | Tạo kho ảnh | Có |
 | `03_du_lieu_mau.sql` | Thêm khách hàng, đơn hàng mẫu để thử | Không |
 | `04_xoa_du_lieu_mau.sql` | Xóa dữ liệu mẫu đi | Không |
-| `05_dat_may_online.sql` | Bật trang khách đặt may online | Có, nếu muốn nhận đơn online |
+| `05_dat_may_online.sql` | ~~Trang khách đặt may online~~ — chức năng này đã bỏ | **Không cần chạy nữa** |
 | `06_phan_quyen_quan_ly.sql` | Vai trò **Quản lý**, xoá tài khoản Quản trị viên, chặn ký tự lạ trong tên | Có |
 | `07_khoi_phuc_du_lieu.sql` | Khôi phục dữ liệu từ file sao lưu | Có |
 | `08_nhat_ky.sql` | Nhật ký hoạt động — ai làm gì, lúc nào, bao nhiêu tiền | Có |
+| `09_don_dep_sau_khi_bo.sql` | Dọn bảng cũ của đặt may online và ảnh mẫu | Không — **xoá thật, đọc kỹ đầu file** |
+| `10_nhat_ky_dang_nhap.sql` | Nhật ký đăng nhập — ai vào, lúc nào, từ IP nào | Có, nếu muốn xem sổ đăng nhập |
 
 > ⚠️ **File 06 là bắt buộc nếu bạn muốn:**
 > · cấp vai trò **Quản lý** cho ai đó,
@@ -342,7 +344,9 @@ Vercel tự động cập nhật trang web sau khoảng 1 phút. Không phải l
 | "Không kết nối được tới máy chủ" | Mất mạng, hoặc `VITE_SUPABASE_URL` sai |
 | Trang trắng sau khi đưa lên Vercel | Nếu đi theo cách D1–D2 (GitHub): quên điền Environment Variables, thêm vào rồi vào tab **Deployments** bấm **Redeploy**. Cách D0 không gặp lỗi này |
 | Sửa code xong mở ra vẫn thấy bản cũ | Không cần làm gì — lần mở kế tiếp phần mềm tự đóng gói lại, đợi 1–3 phút |
-| Ảnh không hiện | Chưa chạy `02_storage.sql`, hoặc chưa đăng nhập |
+| Thẻ **Đăng nhập** báo *không tìm thấy hàm* | Chưa chạy `10_nhat_ky_dang_nhap.sql` |
+| Không thấy thẻ **Đăng nhập** trong trang Nhật ký | Đang dùng tài khoản Quản lý hoặc Nhân viên. Thẻ này chỉ Quản trị viên thấy |
+| Sổ đăng nhập trống trơn | Xem mục *Nhật ký đăng nhập trống* ở cuối tệp này |
 
 ### Khi cần xem lỗi chi tiết
 
@@ -363,7 +367,7 @@ chụp màn hình gửi cho người hỗ trợ.
 ### Sao lưu và khôi phục dữ liệu
 
 **Cài đặt › Sao lưu dữ liệu** tải toàn bộ khách hàng, số đo, đơn hàng, kho, thanh
-toán và đơn đặt online về máy thành một file `.json`.
+toán về máy thành một file `.json`.
 
 **Cài đặt › Khôi phục dữ liệu** nạp ngược file đó lên. Hai cách nạp:
 
@@ -374,8 +378,8 @@ toán và đơn đặt online về máy thành một file `.json`.
 
 Ba điều cần biết:
 
-1. **File sao lưu không chứa ảnh.** Ảnh nằm trong mục Storage của Supabase. Khôi
-   phục xong, dữ liệu về đủ nhưng ảnh nào đã mất khỏi kho thì ô ảnh sẽ trống.
+1. **File sao lưu chỉ chứa dữ liệu trong các bảng**, không chứa file nào nằm
+   trong mục Storage của Supabase.
 2. **Tài khoản nhân sự không khôi phục được hoàn toàn.** Mỗi tài khoản gắn với
    một email đăng nhập thật trong Supabase, không tạo lại từ file được. Phần mềm
    chỉ cập nhật tên và vai trò của những người **hiện còn đăng nhập được**, và báo
@@ -383,3 +387,89 @@ Ba điều cần biết:
 3. **Phải chạy file 07.** Trong đó có hàm chỉnh lại số đếm mã khách và mã đơn.
    Không chạy thì sau khi khôi phục, khách mới sẽ được cấp mã KH00001 trùng với
    khách cũ và phần mềm báo lỗi trùng mã.
+
+
+---
+
+## NHẬT KÝ ĐĂNG NHẬP
+
+**Nhật ký › thẻ Đăng nhập** cho biết ai đã vào phần mềm, lúc nào, từ địa chỉ
+IP nào, và ai vừa xin đặt lại mật khẩu. **Chỉ Quản trị viên thấy thẻ này.**
+
+Muốn dùng thì chạy `10_nhat_ky_dang_nhap.sql` trên Supabase, giống cách chạy
+các file khác ở bước A2.
+
+### Dữ liệu này ở đâu ra
+
+Không phải phần mềm ghi. Trình duyệt **không thể biết địa chỉ IP của chính
+máy đang chạy nó** — đó là quy định của trình duyệt, không lách được.
+
+Supabase vốn đã tự ghi sẵn một cuốn sổ đăng nhập ở tầng máy chủ. File 10 mở
+đúng một cánh cửa hẹp để phần mềm đọc cuốn sổ đó — chỉ đọc, chỉ Quản trị viên.
+
+Nghĩa là bạn thấy được cả những lần đăng nhập **từ trước tới giờ**, chứ không
+phải bắt đầu đếm từ hôm chạy file.
+
+### Ba điều nên biết
+
+1. **Địa chỉ IP cho biết cái mạng, không cho biết con người.** Cả tiệm dùng chung
+   một wifi thì mọi người hiện cùng một IP. Dùng 4G thì IP đổi luôn. IP lạ là thứ
+   đáng để ý, không phải bằng chứng.
+2. **Nhãn "có vẻ vào bằng liên kết quên mật khẩu" là suy đoán.** Phần mềm thấy
+   ngay trước lần vào đó có một lần xin đặt lại mật khẩu của cùng người, trong vòng
+   một tiếng. Dòng xin đặt lại vẫn hiện riêng để bạn tự đối chiếu.
+3. **Sổ này không ghi lần gõ sai mật khẩu.** Máy chủ chỉ ghi những lần vào được.
+
+### Nhật ký đăng nhập trống
+
+Chạy file 10 xong mà sổ vẫn trống trơn, lần lượt thử:
+
+1. **Nới rộng khoảng ngày** ở hai ô *Từ ngày* / *Đến ngày*. Mặc định chỉ lấy 30
+   ngày gần nhất.
+2. **Đăng xuất rồi đăng nhập lại một lần.** Nếu bạn đã đăng nhập từ lâu và trình
+   duyệt vẫn giữ phiên cũ thì không có dòng nào mới.
+3. **Chạy lại đoạn cuối file 10** trên SQL Editor của Supabase:
+
+   ```sql
+   select
+     (select count(*)
+        from pg_proc p
+        join pg_namespace n on n.oid = p.pronamespace
+       where n.nspname = 'public'
+         and p.proname in ('nhat_ky_dang_nhap', 'tong_ket_dang_nhap')
+     ) as so_ham_da_tao,
+     (select count(*) from auth.audit_log_entries)        as so_dong_trong_so,
+     (select max(created_at) from auth.audit_log_entries) as lan_gan_nhat;
+   ```
+
+   - `so_ham_da_tao` **bằng 0** → file 10 chưa chạy xong. Chạy lại cả file.
+   - `so_dong_trong_so` **bằng 0** → cuốn sổ của Supabase chưa có gì.
+     Đăng xuất rồi đăng nhập lại một lần, sẽ có dòng đầu tiên.
+   - Báo *KHONG THAY bang auth.audit_log_entries* → dự án Supabase này không
+     có sổ đăng nhập. Báo lại cho người làm phần mềm.
+   - Cả hai số đều đẹp mà màn hình vẫn trống → lỗi nằm ở bộ lọc, xem lại
+     bước 1.
+
+### Đừng thử gọi hàm thẳng trong SQL Editor
+
+Nếu bạn chạy:
+
+```sql
+select * from public.nhat_ky_dang_nhap();
+```
+
+nó sẽ báo **`Chi Quan tri vien moi xem duoc nhat ky dang nhap`**. Đây không
+phải lỗi — đó là chốt chặn quyền đang làm đúng việc của nó.
+
+Trong SQL Editor, bạn là **chủ cơ sở dữ liệu**, không phải một tài khoản
+đang đăng nhập trong phần mềm. Hàm hỏi "ai đang đăng nhập đây?" thì không
+có ai cả, nên nó từ chối. Chính cơ chế này giữ cho Nhân viên và Quản lý
+không xem được IP và giờ giấc của người khác.
+
+> ⚠️ **SQL Editor chạy cả file trong MỘT giao dịch.** Một câu lệnh hỏng là
+> cuộn ngược toàn bộ file, kể cả những câu đã chạy xong trước đó. Nên
+> hễ thấy báo đỏ là coi như **file đó chưa chạy gì cả** — sửa xong phải
+> chạy lại từ đầu.
+
+Để xem sổ thật: mở phần mềm, đăng nhập bằng tài khoản Quản trị viên,
+vào **Nhật ký › thẻ Đăng nhập**.

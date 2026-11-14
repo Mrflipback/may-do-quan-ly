@@ -5,7 +5,10 @@
    Đổi mã màu ở đây là đổi màu toàn bộ phần mềm.
    ------------------------------------------------------------------ */
 @theme {
-  --font-sans: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif;
+  /* --font-ngon-ngu do src/i18n/ngonNgu.ts dat luc chay, chua phong cua
+     thu tieng dang dung (Thai, Khmer, An, Trung). Khong co no thi chu
+     cua may thu tieng do hien ra thanh mot day o vuong. */
+  --font-sans: var(--font-ngon-ngu, ) 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif;
   /* Phông chữ cho tiêu đề lớn ở trang khách xem. Chữ có chân, trông
      đăng đối và sang hơn — đúng kiểu của nghề may đo. */
   --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;

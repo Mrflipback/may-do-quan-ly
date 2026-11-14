@@ -11,6 +11,7 @@ import {
 import { createPortal } from 'react-dom'
 import { CircleCheck, Info, TriangleExclamationPoint, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useT } from '@/i18n'
 
 type LoaiThongBao = 'thanh_cong' | 'loi' | 'tin'
 
@@ -51,6 +52,7 @@ const KIEU: Record<LoaiThongBao, { lop: string; icon: ReactNode }> = {
 }
 
 export function NhaCungCapThongBao({ children }: { children: ReactNode }) {
+  const { t: dich } = useT()
   const [danhSach, setDanhSach] = useState<ThongBao[]>([])
   const demRef = useRef(0)
 
@@ -98,7 +100,7 @@ export function NhaCungCapThongBao({ children }: { children: ReactNode }) {
               <button
                 type="button"
                 onClick={() => dong(t.id)}
-                aria-label="Đóng thông báo"
+                aria-label={dich('chung.dongThongBao')}
                 className="-mt-0.5 -mr-1 rounded p-1 opacity-70 transition-opacity hover:opacity-100"
               >
                 <X className="size-4" />
@@ -130,11 +132,12 @@ export function HopThoaiXacNhan({
   moRa,
   tieuDe,
   noiDung,
-  nhanDongY = 'Xóa',
+  nhanDongY,
   dangXuLy = false,
   dongY,
   huy,
 }: XacNhanProps) {
+  const { t: dich } = useT()
   useEffect(() => {
     if (!moRa) return
     const xuLy = (e: KeyboardEvent) => {
@@ -171,7 +174,7 @@ export function HopThoaiXacNhan({
             disabled={dangXuLy}
             className="h-10 rounded-lg bg-paper px-4 text-sm font-medium text-slate-700 ring-1 ring-slate-300 transition-colors hover:bg-slate-50 disabled:opacity-50"
           >
-            Hủy
+            {dich('chung.huy')}
           </button>
           <button
             type="button"
@@ -179,7 +182,7 @@ export function HopThoaiXacNhan({
             disabled={dangXuLy}
             className="h-10 rounded-lg bg-rose-600 px-4 text-sm font-medium text-white transition-colors hover:bg-rose-700 disabled:opacity-50"
           >
-            {dangXuLy ? 'Đang xử lý…' : nhanDongY}
+            {dangXuLy ? dich('chung.dangXuLy') : (nhanDongY ?? dich('chung.xoa'))}
           </button>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { TriangleExclamationPoint } from 'lucide-react'
 import { dichLoi } from '@/lib/loi'
+import { useT } from '@/i18n'
 import { cn } from '@/lib/utils'
 import { Button } from './Button'
 
@@ -28,16 +29,17 @@ interface BaoLoiProps {
 }
 
 export function BaoLoi({ loi, thuLai }: BaoLoiProps) {
+  const { t: dich } = useT()
   return (
     <div className="flex flex-col items-center justify-center px-6 py-12 text-center">
       <span className="flex size-12 items-center justify-center rounded-full bg-rose-100 text-rose-600">
         <TriangleExclamationPoint className="size-6" />
       </span>
-      <h3 className="mt-4 text-base font-semibold text-slate-900">Không tải được dữ liệu</h3>
+      <h3 className="mt-4 text-base font-semibold text-slate-900">{dich('chung.khongTaiDuoc')}</h3>
       <p className="mt-1.5 max-w-md text-sm text-slate-600">{dichLoi(loi)}</p>
       {thuLai && (
         <Button kieu="phu" className="mt-5" onClick={thuLai}>
-          Thử lại
+          {dich('chung.thuLai')}
         </Button>
       )}
     </div>

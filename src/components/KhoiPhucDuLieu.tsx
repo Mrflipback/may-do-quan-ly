@@ -41,7 +41,6 @@ export function KhoiPhucDuLieu() {
   const [soi, setSoi] = useState<SoiGoi | null>(null)
   const [loiDoc, setLoiDoc] = useState('')
   const [xoaTruoc, setXoaTruoc] = useState(false)
-  const [napAnhMau, setNapAnhMau] = useState(true)
   const [luuTruoc, setLuuTruoc] = useState(true)
 
   const [hoiNapThem, setHoiNapThem] = useState(false)
@@ -95,7 +94,7 @@ export function KhoiPhucDuLieu() {
         }
       }
 
-      const kq = await khoiPhucDuLieu(soi.goi, { xoaTruoc, napAnhMau }, setTienDo)
+      const kq = await khoiPhucDuLieu(soi.goi, { xoaTruoc }, setTienDo)
       setKetQua(kq)
 
       if (kq.loi.length > 0) {
@@ -238,22 +237,6 @@ export function KhoiPhucDuLieu() {
                 </span>
               </label>
             </fieldset>
-
-            <label className="flex cursor-pointer gap-3">
-              <input
-                type="checkbox"
-                checked={napAnhMau}
-                onChange={(e) => setNapAnhMau(e.target.checked)}
-                className="mt-0.5 size-4 shrink-0 accent-brand-700"
-              />
-              <span className="text-sm text-slate-600">
-                Nạp lại cả danh mục ảnh mẫu.{' '}
-                <span className="text-slate-500">
-                  File sao lưu không chứa ảnh, chỉ chứa tên và phân loại — ảnh nào đã mất khỏi kho
-                  Supabase thì ô ảnh sẽ trống.
-                </span>
-              </span>
-            </label>
 
             <label className="flex cursor-pointer gap-3">
               <input
