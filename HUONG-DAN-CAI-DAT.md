@@ -64,6 +64,8 @@ Làm **y hệt** với những file sau, theo đúng thứ tự:
 | `11_khoa_xoa_tren_may_chu.sql` | Mật khẩu xoá — chuyển việc kiểm xuống máy chủ | **Có** — chưa chạy thì mật khẩu xoá không hoạt động |
 | `12_siet_quyen_goi_ham.sql` | Đóng mấy cửa hàm còn hở với người chưa đăng nhập | Nên chạy — chỉ đổi quyền, không đụng dữ liệu |
 | `13_danh_dau_ip_la.sql` | Đánh dấu địa chỉ mạng lạ trong nhật ký đăng nhập | Nên chạy — chỉ viết lại một hàm chỉ-đọc |
+| `14_sao_luu_khan.sql` | Tự chụp một bản lưu khi có việc nặng về tiền | Nên chạy |
+| `15_dat_lai_cai_dat.sql` | Khôi phục cài đặt hệ thống — cần cả tiệm đồng ý | Nên chạy |
 
 > ⚠️ **File 06 là bắt buộc nếu bạn muốn:**
 > · cấp vai trò **Quản lý** cho ai đó,
@@ -136,6 +138,63 @@ không ăn gì nữa.
 > trên GitHub. **Thứ thật sự giữ dữ liệu là phân quyền ở máy chủ và mật khẩu
 > xoá**, không phải ô này. Bật cho đỡ ngứa mắt thì được, đừng vì có nó mà yên
 > tâm hơn.
+
+### Bản lưu tự chụp
+
+Khi có người **xoá tiền khách đã trả**, **sửa tiền thấp xuống**, hoặc **xoá nhiều
+thứ liên tiếp**, cơ sở dữ liệu tự chụp lại toàn bộ sổ sách ngay lúc đó. Xem ở
+**Cài đặt › Bản lưu tự chụp**, tải về được.
+
+Giữ 10 bản gần nhất, mỗi 30 phút chỉ chụp một lần.
+
+**Vì sao cất ở máy chủ chứ không tải về máy mọi người:** file sao lưu chứa toàn bộ
+khách hàng, đơn hàng, thanh toán và công nợ. Đẩy nó về máy mọi người là mỗi nhân
+viên có một bản đầy đủ sổ sách — kể cả người không được xem báo cáo doanh thu.
+Thêm nữa trình duyệt chặn tải file tự động, và máy đang tắt thì không nhận được gì.
+
+**Vì sao làm ở tầng cơ sở dữ liệu:** để không ai tắt được. Phần mềm chạy trong
+trình duyệt thì người ngồi trước máy tắt được; cơ sở dữ liệu thì không.
+
+> Việc chụp được bọc trong lớp bắt lỗi: chụp hỏng thì bỏ qua lặng lẽ, **không bao
+> giờ làm hỏng việc người dùng đang làm**. Bản chụp là thứ thêm vào, không phải
+> thứ bắt buộc.
+
+### Khôi phục cài đặt hệ thống
+
+**Cài đặt › Khôi phục cài đặt hệ thống.** Phải qua đủ **ba lớp chặn**:
+
+| Lớp | Là gì |
+|---|---|
+| 1 | Mật khẩu **đăng nhập** của chính người bấm — phần mềm hỏi Supabase |
+| 2 | Mật khẩu **khôi phục cài đặt** — mật khẩu thứ ba, tự đặt, máy chủ kiểm |
+| 3 | **Mọi tài khoản** đang hoạt động trong tiệm đều bấm đồng ý |
+
+**Đưa về mặc định:** khoá màn hình, nuốt phím tắt, giờ tiệm đóng cửa, và giao diện
+riêng của máy đang dùng.
+
+**Không đụng tới:** thông tin tiệm, khách hàng, đơn hàng, tiền nong — không mất một
+dòng nào.
+
+#### Vì sao không xoá hai mật khẩu kia
+
+Mật khẩu xoá và mật khẩu khôi phục **cố ý giữ nguyên**. Nếu khôi phục cài đặt mà
+xoá luôn mật khẩu xoá thì đây thành **cửa sau**: khôi phục một phát là mất chốt
+chặn, rồi xoá sạch dữ liệu mà không cần biết mật khẩu nào cả.
+
+#### Cách làm
+
+1. Một Quản trị viên tạo **phiếu xin khôi phục**, ghi lý do
+2. Mọi người trong tiệm vào Cài đặt, thấy phiếu, gõ **mật khẩu đăng nhập của mình**
+   rồi bấm đồng ý
+3. Đủ chữ ký thì nút chạy mới hiện ra, và còn hỏi **cả hai mật khẩu** lần nữa
+
+Phiếu **hết hạn sau 24 tiếng**. Không để phiếu nằm chờ mãi: người ta quên mất là
+đang có phiếu, rồi một hôm ai đó bấm nốt chữ ký cuối cùng và cài đặt bay mất mà
+không ai hiểu vì sao.
+
+> **Lưu ý về tài khoản nghỉ việc:** tính theo tài khoản **đang hoạt động**. Nhân
+> viên nghỉ mà tài khoản còn bật thì phiếu không bao giờ đủ chữ ký. Vào **Cài đặt ›
+> Tài khoản** tắt tài khoản đó đi trước.
 
 ### Đánh dấu truy cập lạ
 

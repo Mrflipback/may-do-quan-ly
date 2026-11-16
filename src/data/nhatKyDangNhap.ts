@@ -84,7 +84,7 @@ export function useNhatKyDangNhap(loc: BoLocDangNhap, bat: boolean) {
         gioi_han: GIOI_HAN,
       })
       if (error) throw error
-      return (data ?? []) as DongDangNhap[]
+      return (Array.isArray(data) ? data : []) as DongDangNhap[]
     },
   })
 }

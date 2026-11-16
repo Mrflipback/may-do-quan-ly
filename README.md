@@ -65,7 +65,7 @@ npm run dev
 | **In phiếu** | Phiếu số đo, phiếu đơn hàng, phiếu thanh toán — khổ A4 |
 | **Nhật ký** | Ai sửa gì, lúc nào, tiền trước và sau. Thêm thẻ **Đăng nhập**: ai vào, lúc nào, từ IP nào (chỉ Quản trị viên). Cả hai đều **tự đánh dấu truy cập lạ** |
 | **Giao diện** | Màu chủ đạo, cỡ chữ, bộ góc, hiệu ứng — mỗi người một kiểu riêng |
-| **Cài đặt** | Thông tin tiệm, phân quyền nhân sự, sao lưu và khôi phục dữ liệu, mật khẩu xoá (máy chủ kiểm), khoá màn hình khi để không |
+| **Cài đặt** | Thông tin tiệm, phân quyền nhân sự, sao lưu và khôi phục dữ liệu, mật khẩu xoá (máy chủ kiểm), khoá màn hình, bản lưu tự chụp, khôi phục cài đặt (cần cả tiệm đồng ý) |
 | **Trang giới thiệu** | Trang công khai `/tiệm` cho khách xem: mặt hàng, bảng giá, địa chỉ — 7 thứ tiếng |
 
 ---

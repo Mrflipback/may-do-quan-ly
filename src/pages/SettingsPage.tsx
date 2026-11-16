@@ -20,6 +20,8 @@ import { taiBanSaoLuu } from '@/data/saoLuu'
 import { KhoiPhucDuLieu } from '@/components/KhoiPhucDuLieu'
 import { TheKhoaManHinh } from '@/components/TheKhoaManHinh'
 import { TheGioDem } from '@/components/TheGioDem'
+import { TheBanChupKhan } from '@/components/TheBanChupKhan'
+import { TheDatLaiCaiDat, TheMatKhauDatLai } from '@/components/TheDatLaiCaiDat'
 import {
   useCaiDat,
   useDanhSachNguoiDung,
@@ -299,6 +301,12 @@ export function SettingsPage() {
           <TheKhoaManHinh />
 
           <TheGioDem />
+
+          <TheBanChupKhan />
+
+          <TheMatKhauDatLai />
+
+          <TheDatLaiCaiDat />
 
           {/* Bảo mật */}
           <Card>
