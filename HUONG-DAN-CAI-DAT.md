@@ -224,24 +224,52 @@ Build có sẵn một chốt chặn: nếu không tìm thấy đoạn script nà
 **hỏng hẳn việc đóng gói** kèm câu giải thích, chứ không lặng lẽ cho ra một
 trang chết.
 
-#### Ba thứ GitHub Pages không làm được
+#### Trusted Types — lớp chặn ở tầng DOM
 
-GitHub Pages không cho đặt header HTTP thật. Thẻ `<meta>` trong trang làm
-được gần hết, trừ ba thứ:
+CSP còn bật thêm `require-trusted-types-for 'script'`. Lớp này chặn việc gắn
+một chuỗi chữ thô vào `innerHTML`, `script.text` và mấy chỗ tương tự — **ngay
+tại tầng DOM, trước khi mã kịp chạy**.
+
+Khác với phần `script-src` ở trên: `script-src` chặn mã *tải từ nơi lạ*, còn
+Trusted Types chặn mã *được dựng lên từ chuỗi chữ ngay trong trang*. Đây là
+đường tấn công phổ biến nhất khi một ô nhập liệu bị lợi dụng.
+
+Đã quét cả **11 trang quản lý** trên bản đã đóng gói: không trang nào dùng tới
+mấy hàm đó, nên bật lên không hỏng gì.
+
+> Chỉ **Chromium** hiểu (Chrome, Edge, Cốc Cốc). Firefox và Safari bỏ qua dòng
+> này — không hỏng gì, chỉ là không được bảo vệ thêm.
+
+#### Bốn thứ GitHub Pages không làm được
+
+GitHub Pages không cho đặt header HTTP thật. Thẻ `<meta>` trong trang làm được
+phần lớn, nhưng **không thay được header** cho mấy thứ sau:
 
 | Thiếu | Để làm gì |
 |---|---|
-| `frame-ancestors` / `X-Frame-Options` | Cấm web khác nhét trang mình vào khung iframe |
+| `X-Frame-Options` / `frame-ancestors` | Cấm web khác nhét trang mình vào iframe |
 | `Strict-Transport-Security` | Ép dùng https |
 | `X-Content-Type-Options` | Cấm trình duyệt tự đoán kiểu file |
+| `Cross-Origin-Opener-Policy` | Cắt liên hệ với trang mở mình ra |
 
-Ba thứ này **đã viết sẵn** trong `vercel.json`. Chúng tự động có hiệu lực
-nếu sau này bạn:
+Đây không phải phỏng đoán. Tôi đã dựng thử một trang có
+`<meta http-equiv="X-Frame-Options" content="DENY">` rồi nhét nó vào iframe:
+**iframe vẫn nạp bình thường**. Làm lại y hệt nhưng gửi bằng header thật thì
+trình duyệt chặn đứng. Thẻ `<meta>` đơn giản là bị bỏ qua với mấy header này.
 
-- Đưa trang lên **Vercel**, hoặc
-- Đặt **Cloudflare** đứng trước GitHub Pages (mục “Muốn chặn bot thật sự thì
-  cần gì” ở dưới có nói cách làm)
+#### Mười header đã viết sẵn trong `vercel.json`
 
+Chúng **tự động có hiệu lực** nếu sau này bạn đưa trang lên **Vercel**, hoặc đặt
+**Cloudflare** đứng trước GitHub Pages:
+
+`X-Frame-Options` · `X-Content-Type-Options` · `Strict-Transport-Security` ·
+`Referrer-Policy` · `Permissions-Policy` · `Content-Security-Policy` ·
+`Cross-Origin-Opener-Policy` · `Cross-Origin-Resource-Policy` ·
+`X-Permitted-Cross-Domain-Policies` · `X-DNS-Prefetch-Control`
+
+> **Một thứ cố ý KHÔNG thêm:** `Cross-Origin-Embedder-Policy`. Bật nó lên là
+> **gãy Google Fonts** và có thể gãy cả Supabase, vì hai nơi đó không gửi kèm
+> header mà nó đòi hỏi. Đổi một lợi ích nhỏ lấy một trang hỏng thì không đáng.
 ### Bot cào trang web
 
 Trang `/tiệm` ai cũng mở được, nên bot cũng ghé. Phần mềm có sẵn mấy lớp:

@@ -134,6 +134,14 @@ function themHeaderBaoMat(diaChiMayChu: string): Plugin {
         "frame-src 'none'",
         "worker-src 'self' blob:",
         "manifest-src 'self'",
+        // Trusted Types: chan han viec gan chuoi tho vao innerHTML,
+        // script.text va may cho tuong tu — ngay o TANG DOM, truoc khi
+        // ma kip chay. Da quet het 11 trang quan ly, khong cho nao dung
+        // toi may ham do nen khong hong gi.
+        //
+        // Chi Chromium (Chrome, Edge, Cot Cot) hieu. Firefox va Safari bo
+        // qua dong nay — khong hong gi, chi la khong duoc bao ve them.
+        "require-trusted-types-for 'script'",
         'upgrade-insecure-requests',
       ].join('; ')
 
