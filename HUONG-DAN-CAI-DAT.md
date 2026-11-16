@@ -136,6 +136,67 @@ không ăn gì nữa.
 > xoá**, không phải ô này. Bật cho đỡ ngứa mắt thì được, đừng vì có nó mà yên
 > tâm hơn.
 
+### Header bảo mật
+
+Phần mềm có sẵn một lớp **Content-Security-Policy** — bản nói cho trình
+duyệt biết trang này được phép tải gì và gọi đi đâu. Có nó thì một đoạn mã
+lạ chèn được vào trang cũng không chạy được, và không gửi dữ liệu đi đâu
+khác được.
+
+Không phải làm gì cả: nó tự sinh ra mỗi lần đóng gói.
+
+**Cho phép dùng những gì:**
+
+| Loại | Được phép |
+|---|---|
+| Mã lệnh (script) | Chỉ file của chính trang, cộng hai đoạn viết thẳng trong `index.html` |
+| Kiểu dáng | Của trang, cộng Google Fonts |
+| Gọi đi | Chỉ Supabase của tiệm và `api.country.is` (dò ngôn ngữ) |
+| Khung iframe | Cấm hết |
+
+Đặc biệt: `script-src` **không có `unsafe-inline`**. Đây là điểm mấu chốt —
+có nó thì CSP gần như vô nghĩa.
+
+#### Chỗ này từng làm trang chết câm, nhớ kỹ
+
+Hai đoạn script viết thẳng trong `index.html` (chống nháy nền, và khôi phục
+đường dẫn sau khi `404.html` đẩy về) phải được khai bằng **mã băm**. Mã băm
+được tính tự động lúc đóng gói, nên sửa script bao nhiêu lần cũng không lệch.
+
+Nhưng có hai cái bẫy tôi đã dính phải cả hai:
+
+1. **Băm bản nháp giữa chừng thay vì file đã ghi ra.** Đã chuyển sang băm
+   đúng file trong `dist/`.
+2. **Xuống dòng kiểu Windows.** File trên đĩa dùng CRLF, nhưng trình duyệt
+   đổi hết sang LF rồi mới băm. Băm bản CRLF là ra mã băm khác hẳn.
+
+Triệu chứng của cả hai giống hệt nhau và rất khó đoán: **trang ra trắng trơn,
+không báo lỗi gì trên màn hình**. Muốn biết có phải lỗi này không thì bấm
+`F12` rồi xem thẻ **Console** — sẽ thấy dòng chữ
+`Refused to execute inline script`.
+
+Build có sẵn một chốt chặn: nếu không tìm thấy đoạn script nào để băm thì
+**hỏng hẳn việc đóng gói** kèm câu giải thích, chứ không lặng lẽ cho ra một
+trang chết.
+
+#### Ba thứ GitHub Pages không làm được
+
+GitHub Pages không cho đặt header HTTP thật. Thẻ `<meta>` trong trang làm
+được gần hết, trừ ba thứ:
+
+| Thiếu | Để làm gì |
+|---|---|
+| `frame-ancestors` / `X-Frame-Options` | Cấm web khác nhét trang mình vào khung iframe |
+| `Strict-Transport-Security` | Ép dùng https |
+| `X-Content-Type-Options` | Cấm trình duyệt tự đoán kiểu file |
+
+Ba thứ này **đã viết sẵn** trong `vercel.json`. Chúng tự động có hiệu lực
+nếu sau này bạn:
+
+- Đưa trang lên **Vercel**, hoặc
+- Đặt **Cloudflare** đứng trước GitHub Pages (mục “Muốn chặn bot thật sự thì
+  cần gì” ở dưới có nói cách làm)
+
 ### Bot cào trang web
 
 Trang `/tiệm` ai cũng mở được, nên bot cũng ghé. Phần mềm có sẵn mấy lớp:
