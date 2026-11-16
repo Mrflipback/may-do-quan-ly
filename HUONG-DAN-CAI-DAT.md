@@ -66,6 +66,7 @@ Làm **y hệt** với những file sau, theo đúng thứ tự:
 | `13_danh_dau_ip_la.sql` | Đánh dấu địa chỉ mạng lạ trong nhật ký đăng nhập | Nên chạy — chỉ viết lại một hàm chỉ-đọc |
 | `14_sao_luu_khan.sql` | Tự chụp một bản lưu khi có việc nặng về tiền | Nên chạy |
 | `15_dat_lai_cai_dat.sql` | Khôi phục cài đặt hệ thống — cần cả tiệm đồng ý | Nên chạy |
+| `16_cho_nghi_viec.sql` | Cho một người nghỉ việc và xoá hẳn tài khoản | Nên chạy |
 
 > ⚠️ **File 06 là bắt buộc nếu bạn muốn:**
 > · cấp vai trò **Quản lý** cho ai đó,
@@ -138,6 +139,53 @@ không ăn gì nữa.
 > trên GitHub. **Thứ thật sự giữ dữ liệu là phân quyền ở máy chủ và mật khẩu
 > xoá**, không phải ô này. Bật cho đỡ ngứa mắt thì được, đừng vì có nó mà yên
 > tâm hơn.
+
+### Cho một người nghỉ việc
+
+**Cài đặt › Tài khoản & phân quyền**, bấm biểu tượng thùng rác cạnh tên người đó.
+
+Làm được **cả với Quản trị viên**. Một việc này làm ba thứ:
+
+1. Đánh dấu người đó đã nghỉ việc
+2. Xoá hồ sơ khỏi tiệm — mất quyền vào phần mềm ngay
+3. Xoá luôn **email đăng nhập** trong Supabase
+
+Việc thứ ba là điểm khác với bản cũ: trước đây chỉ xoá hồ sơ, email vẫn còn nên
+người ta vẫn đăng nhập được (chỉ là vào xong không thấy gì), và chủ tiệm phải tự
+vào trang Supabase xoá tay.
+
+> **Phần mềm nói thật về việc này.** Tuỳ dự án Supabase mà bảng `auth.users` có
+> cho đụng hay không. Xoá được email thì báo đã xoá cả hai; không xoá được thì
+> báo rõ **email vẫn còn trong Supabase › Authentication › Users** để bạn vào xoá
+> nốt — chứ không im lặng để bạn tưởng đã xoá sạch.
+
+#### Ba bước xác nhận
+
+Ba bước này **cố ý khác nhau**, không phải ba lần bấm “chắc chưa” giống hệt. Bấm
+ba lần cùng một nút thì người ta bấm theo quán tính, chẳng đọc gì — còn tệ hơn
+một lần hỏi tử tế.
+
+| Bước | Hỏi gì |
+|---|---|
+| 1 | Nói rõ **sẽ xảy ra ba việc gì** |
+| 2 | Nói rõ **không lấy lại được**, kèm cảnh báo riêng nếu là Quản trị viên hoặc chính bạn |
+| 3 | Bắt **gõ đúng tên** người đó, cộng **mật khẩu xoá** |
+
+Bước 3 là chốt thật: gõ đúng tên thì không thể bấm nhầm người. Gõ sai một chữ là
+nút vẫn khoá.
+
+#### Vẫn không xoá được Quản trị viên cuối cùng
+
+Cái cò `tg_giu_lai_mot_quan_tri` ở file 06 vẫn canh. Hàm mới **không qua mặt được**
+nó, vì cái cò chạy ở tầng bảng. Tiệm không bao giờ bị khoá ngoài cửa.
+
+#### Tạm ngưng thay vì xoá
+
+File 16 còn có hàm `doi_dang_hoat_dong` để **tắt tạm** một tài khoản mà không xoá
+gì. Dùng khi người ta nghỉ tạm, hoặc khi bạn chưa muốn xoá hẳn.
+
+Quan trọng với **phiếu khôi phục cài đặt**: phiếu đó đếm theo tài khoản đang hoạt
+động, nên tắt một người đi là phiếu không bị kẹt vì chờ chữ ký của người đã nghỉ.
 
 ### Bản lưu tự chụp
 

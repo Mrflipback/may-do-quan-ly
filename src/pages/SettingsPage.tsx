@@ -9,7 +9,6 @@ import { Input, Textarea } from '@/components/ui/Field'
 import { BaoLoi, DangTaiBang } from '@/components/ui/TrangThaiTai'
 import { useThongBao } from '@/components/ui/ThongBao'
 import {
-  HopThoaiXoaCanMatKhau,
   TheMatKhauXoa,
 } from '@/components/MatKhauXoa'
 import { MO_TA_VAI_TRO, NHAN_VAI_TRO } from '@/lib/constants'
@@ -28,7 +27,8 @@ import {
   useDoiVaiTro,
   useLuuCaiDat,
 } from '@/data/heThong'
-import { useMatKhauXoa, useXoaTaiKhoan } from '@/data/matKhauXoa'
+import { useChoNghiViec, useMatKhauXoa } from '@/data/matKhauXoa'
+import { HopThoaiChoNghiViec } from '@/components/ChoNghiViec'
 import { cauLoi } from '@/lib/matKhauXoa'
 import type { NguoiDung, VaiTro } from '@/types'
 
@@ -42,17 +42,19 @@ export function SettingsPage() {
   const luuCaiDat = useLuuCaiDat()
   const nhanSu = useDanhSachNguoiDung()
   const doiVaiTro = useDoiVaiTro()
-  const xoaNguoiDung = useXoaTaiKhoan()
+  const chonghiviec = useChoNghiViec()
   const [nguoiXoa, setNguoiXoa] = useState<NguoiDung | null>(null)
   /** Câu báo sai mật khẩu do máy chủ trả về, để hộp thoại hiện lên. */
   const [loiMatKhau, setLoiMatKhau] = useState('')
 
   /**
-   * Xoá một tài khoản khỏi tiệm.
+   * Cho một người nghỉ việc: đánh dấu nghỉ, xoá hồ sơ, và xoá luôn email
+   * đăng nhập trong Supabase.
    *
-   * Xoá chính mình cũng được — xoá xong thì đăng xuất luôn, vì hồ sơ không
-   * còn nên có ở lại cũng chẳng xem được gì. Riêng Quản trị viên CUỐI CÙNG
-   * thì cơ sở dữ liệu chặn lại, để tiệm không bị khoá ngoài cửa.
+   * Làm được cả với Quản trị viên. Riêng Quản trị viên CUỐI CÙNG thì cơ sở
+   * dữ liệu chặn lại, để tiệm không bị khoá ngoài cửa.
+   *
+   * Xoá chính mình cũng được — xoá xong thì đăng xuất luôn.
    */
   async function xoaTaiKhoan(matKhau: string) {
     const u = nguoiXoa
@@ -60,28 +62,37 @@ export function SettingsPage() {
     const laChinhMinh = u.id === hoSo?.id
     setLoiMatKhau('')
     try {
-      const kq = await xoaNguoiDung.mutateAsync({ id: u.id, matKhau })
+      const kq = await chonghiviec.mutateAsync({ id: u.id, matKhau })
 
       // Sai mật khẩu KHÔNG phải lỗi — máy chủ trả về ok:false. Giữ hộp
       // thoại mở cho người dùng gõ lại, đừng đóng đi.
       if (!kq.ok) return setLoiMatKhau(cauLoi(kq))
 
-      if (Number(kq.so_dong ?? 0) === 0) {
-        tb.loi(
-          'Không xoá được. Có thể đây là Quản trị viên cuối cùng — cơ sở dữ liệu giữ lại ít nhất một người để tiệm không bị khoá ngoài cửa.',
-        )
-        setNguoiXoa(null)
-        return
-      }
       setNguoiXoa(null)
+
+      // Nói thật về việc email đăng nhập có xoá được không. Tuỳ dự án
+      // Supabase mà bảng auth.users cho đụng hay không — im lặng để chủ
+      // tiệm tưởng đã xoá sạch là tệ nhất.
+      const email = kq.da_xoa_dang_nhap === true
+
       if (laChinhMinh) {
         tb.tin('Đã xoá tài khoản của bạn khỏi tiệm. Đang đăng xuất…')
         await dangXuat()
         dieuHuong('/dang-nhap', { replace: true })
         return
       }
-      tb.thanhCong(`Đã xoá tài khoản ${u.ho_ten} khỏi tiệm.`)
+
+      if (email) {
+        tb.thanhCong(`Đã cho ${u.ho_ten} nghỉ việc. Xoá cả hồ sơ lẫn email đăng nhập.`)
+      } else {
+        tb.tin(
+          `Đã xoá hồ sơ của ${u.ho_ten}. Nhưng email đăng nhập vẫn còn trong ` +
+            'Supabase › Authentication › Users — vào đó xoá nốt nếu muốn xoá hẳn.',
+        )
+      }
     } catch (e) {
+      // Quản trị viên cuối cùng thì cái cò trong cơ sở dữ liệu chặn lại,
+      // và nó báo lỗi chứ không trả về ok:false.
       tb.loi(dichLoi(e))
       setNguoiXoa(null)
     }
@@ -364,29 +375,12 @@ export function SettingsPage() {
         </div>
       </div>
 
-      <HopThoaiXoaCanMatKhau
-        moRa={Boolean(nguoiXoa)}
-        tieuDe={
-          nguoiXoa?.id === hoSo?.id
-            ? 'Xoá tài khoản của chính bạn?'
-            : 'Xoá tài khoản này khỏi tiệm?'
-        }
-        noiDung={
-          nguoiXoa
-            ? `${nguoiXoa.ho_ten} (${NHAN_VAI_TRO[nguoiXoa.vai_tro]}) sẽ mất quyền vào phần mềm ngay lập tức. ` +
-              'Khách hàng, đơn hàng và số đo do người này nhập vẫn giữ nguyên. ' +
-              'Email đăng nhập vẫn còn trong Supabase › Authentication › Users, vào đó xoá nếu muốn xoá hẳn.'
-            : ''
-        }
-        canhBao={
-          nguoiXoa?.id === hoSo?.id
-            ? 'Đây là tài khoản bạn đang dùng. Xoá xong phần mềm sẽ đăng xuất bạn ra ngay, và bạn sẽ không vào lại được trừ khi có người khác tạo lại tài khoản cho bạn.'
-            : undefined
-        }
-        nhanDongY={nguoiXoa?.id === hoSo?.id ? 'Xoá tài khoản của tôi' : 'Xoá tài khoản'}
-        dangXuLy={xoaNguoiDung.isPending}
+      <HopThoaiChoNghiViec
+        nguoi={nguoiXoa}
+        laChinhMinh={nguoiXoa?.id === hoSo?.id}
         daDatMatKhau={matKhauXoa.daDat}
         loiMayChu={loiMatKhau}
+        dangXuLy={chonghiviec.isPending}
         dongY={(mk) => void xoaTaiKhoan(mk)}
         huy={() => {
           setNguoiXoa(null)

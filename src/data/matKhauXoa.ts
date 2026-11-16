@@ -128,3 +128,48 @@ export function useXoaTaiKhoan() {
     },
   })
 }
+
+/**
+ * Cho một người nghỉ việc: đánh dấu nghỉ, xoá hồ sơ, và xoá luôn email
+ * đăng nhập trong Supabase.
+ *
+ * Khác với xoaTaiKhoan cũ: cái đó chỉ xoá hồ sơ, email vẫn còn nên người ta
+ * vẫn đăng nhập được (chỉ là vào xong không thấy gì).
+ *
+ * Xem supabase/16_cho_nghi_viec.sql.
+ */
+export function useChoNghiViec() {
+  return useMutation({
+    mutationFn: async ({
+      id,
+      matKhau,
+    }: {
+      id: string
+      matKhau: string
+    }): Promise<KetQuaMatKhau> => {
+      const { data, error } = await supabase.rpc('cho_nghi_viec', {
+        nguoi: id,
+        mk_xoa: matKhau,
+      })
+      if (error) throw error
+      return (data ?? { ok: false }) as KetQuaMatKhau
+    },
+    onSuccess: (kq) => {
+      if (kq.ok) void queryClient.invalidateQueries({ queryKey: KHOA.nguoiDung })
+    },
+  })
+}
+
+/** Tạm ngưng hoặc bật lại một tài khoản, không xoá gì. */
+export function useDoiDangHoatDong() {
+  return useMutation({
+    mutationFn: async ({ id, bat }: { id: string; bat: boolean }): Promise<KetQuaMatKhau> => {
+      const { data, error } = await supabase.rpc('doi_dang_hoat_dong', { nguoi: id, bat })
+      if (error) throw error
+      return (data ?? { ok: false }) as KetQuaMatKhau
+    },
+    onSuccess: (kq) => {
+      if (kq.ok) void queryClient.invalidateQueries({ queryKey: KHOA.nguoiDung })
+    },
+  })
+}
