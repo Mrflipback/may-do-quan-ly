@@ -7,11 +7,14 @@ import type { TrangThaiDonHang } from '@/types'
 interface BadgeProps {
   children: ReactNode
   className?: string
+  /** Cau giai thich hien ra khi ro chuot len. */
+  title?: string
 }
 
-export function Badge({ children, className }: BadgeProps) {
+export function Badge({ children, className, title }: BadgeProps) {
   return (
     <span
+      title={title}
       className={cn(
         'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset whitespace-nowrap',
         className ?? 'bg-slate-100 text-slate-700 ring-slate-500/20',

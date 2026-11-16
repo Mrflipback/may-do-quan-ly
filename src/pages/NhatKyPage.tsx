@@ -8,6 +8,7 @@ import {
   Pencil,
   ScrollText,
   Trash2,
+  TriangleAlert,
   Users,
 } from 'lucide-react'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -32,7 +33,14 @@ import { chuCaiDau, cn, dinhDangSo, dinhDangTien } from '@/lib/utils'
 import { dichLoi } from '@/lib/loi'
 import { useAuth } from '@/auth/AuthProvider'
 import { NhatKyDangNhap } from '@/components/NhatKyDangNhap'
-import { useDanhSachNguoiDung } from '@/data/heThong'
+import { useCaiDat, useDanhSachNguoiDung } from '@/data/heThong'
+import {
+  GIAI_THICH_HOAT_DONG,
+  NHAN_DAU_HIEU_HOAT_DONG,
+  docKhungGio,
+  soiHoatDong,
+  type DauHieuHoatDong,
+} from '@/lib/dauHieuLa'
 import {
   SO_DONG_MOI_TRANG,
   donNhatKyCu,
@@ -97,7 +105,7 @@ function doiSangChu(cot: string, v: unknown): string {
 /*  Một dòng nhật ký                                                   */
 /* ------------------------------------------------------------------ */
 
-function DongNhatKy({ d }: { d: NhatKy }) {
+function DongNhatKy({ d, dauHieu = [] }: { d: NhatKy; dauHieu?: DauHieuHoatDong[] }) {
   const [mo, setMo] = useState(false)
 
   const truoc = d.tien_truoc === null ? null : Number(d.tien_truoc)
@@ -108,7 +116,7 @@ function DongNhatKy({ d }: { d: NhatKy }) {
   const laSua = d.hanh_dong === 'sua'
 
   return (
-    <li className="px-4 py-3 sm:px-5">
+    <li data-dong="viec" className="px-4 py-3 sm:px-5">
       <div className="flex items-start gap-3">
         <span className="w-11 shrink-0 pt-0.5 text-xs font-medium tabular-nums text-slate-400">
           {gioPhut(d.thoi_diem)}
@@ -125,6 +133,15 @@ function DongNhatKy({ d }: { d: NhatKy }) {
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <span className="text-sm font-semibold text-slate-900">{d.ten_nguoi}</span>
             <Badge className={MAU_HANH_DONG[d.hanh_dong]}>{NHAN_HANH_DONG[d.hanh_dong]}</Badge>
+            {dauHieu.map((x) => (
+              <Badge
+                key={x}
+                className="bg-rose-50 text-rose-700 ring-rose-600/20"
+                title={GIAI_THICH_HOAT_DONG[x]}
+              >
+                {NHAN_DAU_HIEU_HOAT_DONG[x]}
+              </Badge>
+            ))}
             <span className="text-xs text-slate-400">
               {NHAN_BANG_NHAT_KY[d.bang] ?? d.bang}
             </span>
@@ -241,6 +258,10 @@ export function NhatKyPage() {
   const [dangTaiFile, setDangTaiFile] = useState(false)
   const [hoiDon, setHoiDon] = useState(false)
   const [giuNgay, setGiuNgay] = useState('90')
+  const [chiDangNgo, setChiDangNgo] = useState(false)
+
+  const { data: caiDat } = useCaiDat()
+  const khungGio = useMemo(() => docKhungGio(caiDat), [caiDat])
 
   const doiLoc = <K extends keyof BoLocNhatKy>(khoa: K, v: BoLocNhatKy[K]) => {
     setLoc((c) => ({ ...c, [khoa]: v }))
@@ -253,17 +274,35 @@ export function NhatKyPage() {
   const soTrang = Math.max(1, Math.ceil((nhatKy.data?.tong ?? 0) / SO_DONG_MOI_TRANG))
 
   /** Gom theo ngày để đọc như một cuốn sổ. */
+  /**
+   * Soi cả trang một lượt để tìm việc đáng nhìn kỹ.
+   *
+   * Phải soi TRÊN CẢ DANH SÁCH chứ không từng dòng: dấu hiệu "xoá nhiều
+   * thứ liên tiếp" chỉ thấy được khi nhìn cả chuỗi.
+   *
+   * Chỉ soi trong TRANG ĐANG XEM. Một chuỗi xoá vắt qua hai trang thì
+   * có thể không nhận ra — đổi lại không phải tải thêm gì.
+   */
+  const dauHieu = useMemo(
+    () => soiHoatDong(nhatKy.data?.ds ?? [], khungGio),
+    [nhatKy.data, khungGio],
+  )
+
+  const soDangNgo = dauHieu.size
+
   const theoNgay = useMemo(() => {
-    const nhom = new Map<string, NhatKy[]>()
-    for (const d of nhatKy.data?.ds ?? []) {
+    const nhom = new Map<string, { d: NhatKy; dau: DauHieuHoatDong[] }[]>()
+    ;(nhatKy.data?.ds ?? []).forEach((d, i) => {
+      const dau = dauHieu.get(i) ?? []
+      if (chiDangNgo && dau.length === 0) return
       // Gom theo ngày ở MÚI GIỜ CỦA TIỆM, không phải giờ quốc tế
       const ngay = ngayDiaPhuong(new Date(d.thoi_diem))
       const cu = nhom.get(ngay) ?? []
-      cu.push(d)
+      cu.push({ d, dau })
       nhom.set(ngay, cu)
-    }
+    })
     return [...nhom.entries()]
-  }, [nhatKy.data])
+  }, [nhatKy.data, dauHieu, chiDangNgo])
 
   const taiFile = async () => {
     setDangTaiFile(true)
@@ -415,6 +454,23 @@ export function NhatKyPage() {
               </span>
             </span>
           </label>
+
+          <label className="flex cursor-pointer items-center gap-2.5 sm:col-span-2 lg:col-span-5">
+            <input
+              type="checkbox"
+              checked={chiDangNgo}
+              onChange={(e) => setChiDangNgo(e.target.checked)}
+              data-loc="chi-dang-ngo"
+              className="size-4 accent-rose-600"
+            />
+            <span className="text-sm text-slate-700">
+              Chỉ xem <b>việc đáng nhìn kỹ</b>
+              {soDangNgo > 0 && (
+                <span className="ml-1.5 font-semibold text-rose-700">({soDangNgo})</span>
+              )}
+              <span className="text-slate-500"> — trong trang đang xem</span>
+            </span>
+          </label>
         </CardBody>
       </Card>
 
@@ -444,11 +500,11 @@ export function NhatKyPage() {
           chuThich="Sửa lại khoản khách đã trả"
         />
         <StatCard
-          nhan="Số lần sửa số lượng / đơn giá"
-          giaTri={tk ? dinhDangSo(tk.soLanSuaSoLuong) : '…'}
-          icon={<ScrollText className="size-5" />}
-          mauIcon="bg-sky-50 text-sky-700"
-          chuThich="Trên các món trong đơn hàng"
+          nhan="Việc đáng nhìn kỹ"
+          giaTri={dinhDangSo(soDangNgo)}
+          icon={<TriangleAlert className="size-5" />}
+          mauIcon={soDangNgo > 0 ? 'bg-rose-50 text-rose-700' : 'bg-slate-100 text-slate-500'}
+          chuThich={`Trong trang đang xem · ${dinhDangSo(tk?.soLanSuaSoLuong ?? 0)} lần sửa số lượng`}
         />
       </div>
 
@@ -485,11 +541,11 @@ export function NhatKyPage() {
               {theoNgay.map(([ngay, ds]) => (
                 <div key={ngay}>
                   <p className="sticky top-16 z-10 border-y border-slate-200/80 bg-slate-50/95 px-4 py-2 text-xs font-semibold text-slate-600 backdrop-blur sm:px-5">
-                    {ngayDaiDong(ds[0].thoi_diem)} · {ds.length} việc
+                    {ngayDaiDong(ds[0].d.thoi_diem)} · {ds.length} việc
                   </p>
                   <ul className="divide-y divide-slate-100">
-                    {ds.map((d) => (
-                      <DongNhatKy key={d.id} d={d} />
+                    {ds.map((x) => (
+                      <DongNhatKy key={x.d.id} d={x.d} dauHieu={x.dau} />
                     ))}
                   </ul>
                 </div>

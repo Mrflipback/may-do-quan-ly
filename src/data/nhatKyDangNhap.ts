@@ -44,6 +44,18 @@ export interface DongDangNhap {
    * sổ để đối chiếu.
    */
   qua_quen_mk: boolean
+  /**
+   * Lan dau tai khoan nay vao tu dia chi mang do, tinh tren TOAN BO
+   * lich su chu khong rieng khoang dang xem.
+   *
+   * May chu tinh (xem supabase/13_danh_dau_ip_la.sql) vi cau hoi nay
+   * phai soi het ca cuon so. May dau hieu con lai thi phan mem tu tinh,
+   * do chung can gio dia phuong cua tiem.
+   *
+   * Chua chay file 13 thi may chu khong gui cot nay -> undefined ->
+   * khong danh dau gi. Khong hong gi ca.
+   */
+  ip_la?: boolean
 }
 
 export interface BoLocDangNhap {

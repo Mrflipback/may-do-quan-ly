@@ -63,6 +63,7 @@ Làm **y hệt** với những file sau, theo đúng thứ tự:
 | `10_nhat_ky_dang_nhap.sql` | Nhật ký đăng nhập — ai vào, lúc nào, từ IP nào | Có, nếu muốn xem sổ đăng nhập |
 | `11_khoa_xoa_tren_may_chu.sql` | Mật khẩu xoá — chuyển việc kiểm xuống máy chủ | **Có** — chưa chạy thì mật khẩu xoá không hoạt động |
 | `12_siet_quyen_goi_ham.sql` | Đóng mấy cửa hàm còn hở với người chưa đăng nhập | Nên chạy — chỉ đổi quyền, không đụng dữ liệu |
+| `13_danh_dau_ip_la.sql` | Đánh dấu địa chỉ mạng lạ trong nhật ký đăng nhập | Nên chạy — chỉ viết lại một hàm chỉ-đọc |
 
 > ⚠️ **File 06 là bắt buộc nếu bạn muốn:**
 > · cấp vai trò **Quản lý** cho ai đó,
@@ -135,6 +136,50 @@ không ăn gì nữa.
 > trên GitHub. **Thứ thật sự giữ dữ liệu là phân quyền ở máy chủ và mật khẩu
 > xoá**, không phải ô này. Bật cho đỡ ngứa mắt thì được, đừng vì có nó mà yên
 > tâm hơn.
+
+### Đánh dấu truy cập lạ
+
+Hai cuốn nhật ký tự gắn nhãn đỏ cho những dòng đáng nhìn kỹ, kèm một ô lọc
+**“Chỉ xem những dòng đáng nhìn kỹ”** để không phải dò bằng mắt.
+
+**Trong nhật ký đăng nhập:**
+
+| Nhãn | Nghĩa là gì |
+|---|---|
+| địa chỉ mạng lạ | Lần đầu tài khoản đó vào từ địa chỉ ấy, tính trên **toàn bộ** lịch sử |
+| vào lúc tiệm đóng cửa | Rơi vào khung giờ bạn đặt trong Cài đặt |
+| nhiều địa chỉ trong một ngày | Cùng một người vào từ hai địa chỉ trở lên trong ngày |
+
+**Trong nhật ký hoạt động:**
+
+| Nhãn | Nghĩa là gì |
+|---|---|
+| xoá tiền khách đã trả | Một khoản thanh toán bị xoá khỏi sổ |
+| sửa tiền thấp xuống | Sửa một khoản đã ghi thành số nhỏ hơn. Sửa **lên** thì không đánh dấu |
+| làm lúc tiệm đóng cửa | Rơi vào khung giờ bạn đặt |
+| xoá nhiều thứ liên tiếp | Từ ba lần xoá trở lên trong mười phút, bởi cùng một người |
+
+#### Đặt giờ tiệm đóng cửa
+
+**Cài đặt › Giờ tiệm đóng cửa.** Mặc định là 22:00 – 06:00. Đặt hai ô **giống
+nhau** thì tắt hẳn việc đánh dấu giờ giấc.
+
+Tính theo giờ trên máy bạn đang dùng, nên không lệch múi giờ.
+
+#### Ba điều phải hiểu đúng
+
+1. **Đây là dấu hiệu, không phải bằng chứng.** Nhân viên ở lại muộn dọn sổ sách
+   cũng bị đánh dấu. Đổi từ wifi sang 4G là đổi địa chỉ mạng thật. Phần mềm chỉ
+   nói “chỗ này đáng nhìn”, còn kết luận là việc của bạn.
+
+2. **Thà bỏ sót còn hơn báo oan.** Ngưỡng cố ý đặt rộng. Một cuốn sổ đỏ chi chít
+   thì chẳng ai buồn đọc, và lúc có chuyện thật thì dấu đỏ đó cũng chìm nghỉm.
+
+3. **Nhật ký hoạt động chỉ soi trang đang xem.** Một chuỗi xoá vắt qua hai trang
+   có thể không nhận ra. Nhật ký đăng nhập thì soi cả khoảng ngày đang chọn.
+
+> Nhãn **địa chỉ mạng lạ** cần chạy `13_danh_dau_ip_la.sql`. Chưa chạy thì ba
+> nhãn kia vẫn hoạt động bình thường, chỉ thiếu mỗi nhãn đó.
 
 ### Header bảo mật
 

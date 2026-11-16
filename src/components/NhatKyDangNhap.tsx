@@ -7,6 +7,7 @@ import {
   LogOut,
   MailQuestion,
   ShieldCheck,
+  TriangleAlert,
   Users,
 } from 'lucide-react'
 import { Card, CardBody, CardHeader } from '@/components/ui/Card'
@@ -20,7 +21,14 @@ import { useThongBao } from '@/components/ui/ThongBao'
 import { NHAN_VAI_TRO } from '@/lib/constants'
 import { cn, dinhDangSo } from '@/lib/utils'
 import { dichLoi } from '@/lib/loi'
-import { useDanhSachNguoiDung } from '@/data/heThong'
+import { useCaiDat, useDanhSachNguoiDung } from '@/data/heThong'
+import {
+  GIAI_THICH_DANG_NHAP,
+  NHAN_DAU_HIEU_DANG_NHAP,
+  docKhungGio,
+  soiDangNhap,
+  type DauHieuDangNhap,
+} from '@/lib/dauHieuLa'
 import {
   SO_DONG_TOI_DA,
   taiDangNhapCsv,
@@ -112,12 +120,12 @@ function luc(iso: string | null): string {
 /*  Một dòng trong sổ                                                  */
 /* ------------------------------------------------------------------ */
 
-function DongDN({ d }: { d: DongDangNhap }) {
+function DongDN({ d, dauHieu }: { d: DongDangNhap; dauHieu: DauHieuDangNhap[] }) {
   const Hinh = HINH_VIEC[d.loai_su_kien] ?? Globe
   const vai = NHAN_VAI_TRO[d.vai_tro as VaiTro] ?? d.vai_tro
 
   return (
-    <li className="flex gap-3 px-4 py-3 transition-colors hover:bg-slate-50/70 sm:px-5">
+    <li data-dong="dang-nhap" className="flex gap-3 px-4 py-3 transition-colors hover:bg-slate-50/70 sm:px-5">
       <span
         className={cn(
           'mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset',
@@ -137,6 +145,15 @@ function DongDN({ d }: { d: DongDangNhap }) {
               có vẻ vào bằng liên kết quên mật khẩu
             </Badge>
           )}
+          {dauHieu.map((x) => (
+            <Badge
+              key={x}
+              className="bg-rose-50 text-rose-700 ring-rose-600/20"
+              title={GIAI_THICH_DANG_NHAP[x]}
+            >
+              {NHAN_DAU_HIEU_DANG_NHAP[x]}
+            </Badge>
+          ))}
         </div>
 
         <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-sm text-slate-500">
@@ -171,6 +188,10 @@ export function NhatKyDangNhap() {
     loai: 'tat_ca',
   })
   const [dangTaiFile, setDangTaiFile] = useState(false)
+  const [chiDangNgo, setChiDangNgo] = useState(false)
+
+  const { data: caiDat } = useCaiDat()
+  const khungGio = useMemo(() => docKhungGio(caiDat), [caiDat])
 
   const doiLoc = <K extends keyof BoLocDangNhap>(khoa: K, v: BoLocDangNhap[K]) =>
     setLoc((c) => ({ ...c, [khoa]: v }))
@@ -179,17 +200,32 @@ export function NhatKyDangNhap() {
   const tongKet = useTongKetDangNhap(loc, true)
   const tk = tongKet.data
 
-  /** Gom theo ngày để đọc như một cuốn sổ. */
+  /**
+   * Soi cả danh sách một lượt để tìm dấu hiệu lạ.
+   *
+   * Phải soi TRÊN CẢ DANH SÁCH chứ không từng dòng một: dấu hiệu
+   * "nhiều địa chỉ trong một ngày" chỉ thấy được khi nhìn cả ngày.
+   */
+  const dauHieu = useMemo(
+    () => soiDangNhap(so.data ?? [], khungGio),
+    [so.data, khungGio],
+  )
+
+  const soDangNgo = dauHieu.size
+
+  /** Gom theo ngày để đọc như một cuốn sổ, mang theo dấu hiệu của từng dòng. */
   const theoNgay = useMemo(() => {
-    const nhom = new Map<string, DongDangNhap[]>()
-    for (const d of so.data ?? []) {
+    const nhom = new Map<string, { d: DongDangNhap; dau: DauHieuDangNhap[] }[]>()
+    ;(so.data ?? []).forEach((d, i) => {
+      const dau = dauHieu.get(i) ?? []
+      if (chiDangNgo && dau.length === 0) return
       const ngay = ngayDiaPhuong(new Date(d.thoi_diem))
       const cu = nhom.get(ngay) ?? []
-      cu.push(d)
+      cu.push({ d, dau })
       nhom.set(ngay, cu)
-    }
+    })
     return [...nhom.entries()]
-  }, [so.data])
+  }, [so.data, dauHieu, chiDangNgo])
 
   const taiFile = async () => {
     setDangTaiFile(true)
@@ -255,6 +291,22 @@ export function NhatKyDangNhap() {
               Tải ra Excel
             </Button>
           </div>
+
+          <label className="flex cursor-pointer items-center gap-2.5 sm:col-span-2 lg:col-span-5">
+            <input
+              type="checkbox"
+              checked={chiDangNgo}
+              onChange={(e) => setChiDangNgo(e.target.checked)}
+              data-loc="chi-dang-ngo"
+              className="size-4 shrink-0 accent-rose-600"
+            />
+            <span className="text-sm text-slate-600">
+              Chỉ xem những dòng đáng nhìn kỹ
+              {soDangNgo > 0 && (
+                <span className="ml-1.5 font-semibold text-rose-700">({soDangNgo})</span>
+              )}
+            </span>
+          </label>
         </CardBody>
       </Card>
 
@@ -281,10 +333,11 @@ export function NhatKyDangNhap() {
           chuThich="Nhiều IP lạ là điều đáng để ý"
         />
         <StatCard
-          nhan="Vào bằng quên mật khẩu"
-          giaTri={dinhDangSo(tk?.so_lan_quen ?? 0)}
-          icon={<KeyRound className="size-4.5" />}
-          mauIcon="bg-amber-50 text-amber-700"
+          nhan="Dòng đáng nhìn kỹ"
+          giaTri={dinhDangSo(soDangNgo)}
+          icon={<TriangleAlert className="size-4.5" />}
+          mauIcon={soDangNgo > 0 ? 'bg-rose-50 text-rose-700' : 'bg-slate-100 text-slate-500'}
+          chuThich={`Trong đó ${dinhDangSo(tk?.so_lan_quen ?? 0)} lần vào bằng quên mật khẩu`}
         />
       </div>
 
@@ -309,8 +362,8 @@ export function NhatKyDangNhap() {
           ) : theoNgay.length === 0 ? (
             <EmptyState
               icon={<ShieldCheck className="size-6" />}
-              tieuDe="Chưa có lần đăng nhập nào trong khoảng này"
-              moTa="Thử nới rộng khoảng ngày ở trên."
+              tieuDe={chiDangNgo ? "Không có dòng nào đáng nhìn kỹ" : "Chưa có lần đăng nhập nào trong khoảng này"}
+              moTa={chiDangNgo ? "Bỏ tích ô lọc ở trên để xem lại toàn bộ." : "Thử nới rộng khoảng ngày ở trên."}
             />
           ) : (
             <>
@@ -328,8 +381,8 @@ export function NhatKyDangNhap() {
                       {ngayDaiDong(ngay)} · {dinhDangSo(ds.length)} việc
                     </h3>
                     <ul className="divide-y divide-slate-200/60">
-                      {ds.map((d, i) => (
-                        <DongDN key={`${d.thoi_diem}-${i}`} d={d} />
+                      {ds.map((x, i) => (
+                        <DongDN key={`${x.d.thoi_diem}-${i}`} d={x.d} dauHieu={x.dau} />
                       ))}
                     </ul>
                   </section>

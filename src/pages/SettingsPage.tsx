@@ -19,6 +19,7 @@ import { useAuth } from '@/auth/AuthProvider'
 import { taiBanSaoLuu } from '@/data/saoLuu'
 import { KhoiPhucDuLieu } from '@/components/KhoiPhucDuLieu'
 import { TheKhoaManHinh } from '@/components/TheKhoaManHinh'
+import { TheGioDem } from '@/components/TheGioDem'
 import {
   useCaiDat,
   useDanhSachNguoiDung,
@@ -296,6 +297,8 @@ export function SettingsPage() {
           <TheMatKhauXoa />
 
           <TheKhoaManHinh />
+
+          <TheGioDem />
 
           {/* Bảo mật */}
           <Card>
