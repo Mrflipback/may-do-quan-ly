@@ -39,6 +39,21 @@ import type { LoaiTrangPhuc } from '@/types'
 /* Danh sách mặt hàng. Chỉ giữ MÃ loại — tên và mô tả lấy từ bản dịch
    theo thứ tiếng người xem đang dùng. Mỗi loại một hình vẽ riêng cho
    dễ phân biệt, vì trang này không còn ảnh chụp nữa. */
+/*
+ * CÔNG TẮC MỤC "MẪU ĐÃ MAY"
+ *
+ * Đổi thành true là mục thư viện ảnh hiện lại trên trang giới thiệu,
+ * cùng với cái neo trong menu đầu trang.
+ *
+ * Chủ tiệm bảo tạm giấu đi, nên để false. KHÔNG xoá gì cả: thành phần
+ * ThuVienAnhMau, danh mục trong src/data/anhMau.ts và 56 tấm ảnh trong
+ * public/anh/ vẫn còn nguyên — bật lại chỉ cần đổi đúng dòng này.
+ *
+ * Lưu ý: 7 tấm trong ANH_DAI_DIEN vẫn đang được dùng làm ảnh đại diện
+ * tài khoản, nên đừng xoá thư mục ảnh đi kể cả khi mục này đang tắt.
+ */
+const HIEN_MAU_DA_MAY = false
+
 const SAN_PHAM: { loai: LoaiTrangPhuc; Hinh: typeof Shirt }[] = [
   { loai: 'ao_dai', Hinh: Crown },
   { loai: 'vest', Hinh: Briefcase },
@@ -90,9 +105,11 @@ export function ShopPage() {
             <a href="#san-pham" className="transition-colors hover:text-white">
               {dich('shop.menuSanPham')}
             </a>
-            <a href="#mau-da-may" className="transition-colors hover:text-white">
-              {dich('shop.menuMau')}
-            </a>
+            {HIEN_MAU_DA_MAY && (
+              <a href="#mau-da-may" className="transition-colors hover:text-white">
+                {dich('shop.menuMau')}
+              </a>
+            )}
             <a href="#bang-gia" className="transition-colors hover:text-white">
               {dich('shop.menuBangGia')}
             </a>
@@ -207,19 +224,21 @@ export function ShopPage() {
         </div>
       </section>
 
-      {/* ----------------------------- Mẫu đã may ----------------------------- */}
-      <section id="mau-da-may" className="border-t border-slate-200/80 bg-paper">
-        <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-24">
-          <LoDan>
-            <Kicker>{dich('shop.mauKicker')}</Kicker>
-            <h2 className="mt-4 font-display text-3xl font-semibold leading-tight text-slate-900 sm:text-4xl">
-              {dich('shop.mauTieuDe')}
-            </h2>
-            <p className="mt-3 max-w-xl text-slate-600">{dich('shop.mauMoTa')}</p>
-          </LoDan>
-          <ThuVienAnhMau />
-        </div>
-      </section>
+      {/* --------------------- Mẫu đã may (đang tắt) --------------------- */}
+      {HIEN_MAU_DA_MAY && (
+        <section id="mau-da-may" className="border-t border-slate-200/80 bg-paper">
+          <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-24">
+            <LoDan>
+              <Kicker>{dich('shop.mauKicker')}</Kicker>
+              <h2 className="mt-4 font-display text-3xl font-semibold leading-tight text-slate-900 sm:text-4xl">
+                {dich('shop.mauTieuDe')}
+              </h2>
+              <p className="mt-3 max-w-xl text-slate-600">{dich('shop.mauMoTa')}</p>
+            </LoDan>
+            <ThuVienAnhMau />
+          </div>
+        </section>
+      )}
 
       {/* ----------------------------- Bảng giá ----------------------------- */}
       <section id="bang-gia" className="border-y border-slate-200/80 bg-paper">
