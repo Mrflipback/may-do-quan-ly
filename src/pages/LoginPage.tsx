@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { Lock, Mail, Scissors, UserRound } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
@@ -7,6 +7,7 @@ import { useAuth } from '@/auth/AuthProvider'
 import { useThongBao } from '@/components/ui/ThongBao'
 import { DangTaiToanTrang } from '@/components/BaoVe'
 import { useChanPhimTatCongKhai } from '@/lib/chanDevTools'
+import { OTichHCaptcha, type TayCamHCaptcha } from '@/components/OTichHCaptcha'
 import { dichLoi } from '@/lib/loi'
 import { loiTenTaiKhoan } from '@/lib/utils'
 
@@ -20,6 +21,8 @@ export function LoginPage() {
   const tb = useThongBao()
 
   const [cheDo, setCheDo] = useState<CheDo>('dang_nhap')
+  const [maCaptcha, setMaCaptcha] = useState<string | null>(null)
+  const oCaptcha = useRef<TayCamHCaptcha>(null)
   const [email, setEmail] = useState('')
   const [matKhau, setMatKhau] = useState('')
   const [hoTen, setHoTen] = useState('')
@@ -43,12 +46,16 @@ export function LoginPage() {
     if (cheDo === 'quen_mat_khau') {
       setDangGui(true)
       try {
-        await quenMatKhau(email)
+        await quenMatKhau(email, maCaptcha ?? undefined)
         tb.thanhCong('Đã gửi email đặt lại mật khẩu. Hãy mở hộp thư của bạn.')
         setCheDo('dang_nhap')
       } catch (err) {
         setLoi(dichLoi(err))
       } finally {
+        // Mã captcha chỉ dùng được MỘT LẦN, kể cả khi vừa gửi thành công.
+        // Không lấy mã mới thì lần bấm sau nhận lỗi captcha chứ không
+        // phải lỗi mật khẩu — người dùng sẽ không hiểu vì sao.
+        oCaptcha.current?.datLai()
         setDangGui(false)
       }
       return
@@ -63,16 +70,18 @@ export function LoginPage() {
     setDangGui(true)
     try {
       if (cheDo === 'dang_ky') {
-        const thongDiep = await dangKy(email, matKhau, hoTen)
+        const thongDiep = await dangKy(email, matKhau, hoTen, maCaptcha ?? undefined)
         tb.thanhCong(thongDiep)
         setCheDo('dang_nhap')
       } else {
-        await dangNhap(email, matKhau)
+        await dangNhap(email, matKhau, maCaptcha ?? undefined)
         dieuHuong('/', { replace: true })
       }
     } catch (err) {
       setLoi(dichLoi(err))
     } finally {
+      // Xem lời giải thích ở nhánh quên mật khẩu bên trên
+      oCaptcha.current?.datLai()
       setDangGui(false)
     }
   }
@@ -190,7 +199,15 @@ export function LoginPage() {
               </p>
             )}
 
-            <Button co="lon" rongHet type="submit" dangTai={dangGui}>
+            <OTichHCaptcha ref={oCaptcha} khiCoMa={setMaCaptcha} />
+
+            <Button
+              co="lon"
+              rongHet
+              type="submit"
+              dangTai={dangGui}
+              disabled={!maCaptcha}
+            >
               {cheDo === 'dang_ky'
                 ? 'Tạo tài khoản'
                 : cheDo === 'quen_mat_khau'

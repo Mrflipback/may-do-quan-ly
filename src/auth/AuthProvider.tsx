@@ -24,10 +24,10 @@ interface GiaTriAuth {
   laQuanTri: boolean
   /** Quản trị viên HOẶC Quản lý. Dùng cho báo cáo và quyền xoá dữ liệu. */
   laQuanLy: boolean
-  dangNhap: (email: string, matKhau: string) => Promise<void>
-  dangKy: (email: string, matKhau: string, hoTen: string) => Promise<string>
+  dangNhap: (email: string, matKhau: string, maCaptcha?: string) => Promise<void>
+  dangKy: (email: string, matKhau: string, hoTen: string, maCaptcha?: string) => Promise<string>
   dangXuat: () => Promise<void>
-  quenMatKhau: (email: string) => Promise<void>
+  quenMatKhau: (email: string, maCaptcha?: string) => Promise<void>
   taiLaiHoSo: () => Promise<void>
 }
 
@@ -105,20 +105,34 @@ export function NhaCungCapAuth({ children }: { children: ReactNode }) {
     }
   }, [layHoSo])
 
-  const dangNhap = useCallback(async (email: string, matKhau: string) => {
+  /*
+   * Supabase đang bật chống bot cho phần đăng nhập, nên ba hàm dưới đây
+   * đều phải kèm MÃ CAPTCHA. Thiếu mã là Supabase chặn trước cả khi xét
+   * tới mật khẩu, và câu lỗi nói về captcha chứ không nói về mật khẩu.
+   *
+   * Mã CHỈ DÙNG ĐƯỢC MỘT LẦN. Gửi hỏng thì màn hình phải lấy mã mới
+   * trước khi gửi lại — xem OTichHCaptcha.datLai().
+   */
+  const dangNhap = useCallback(async (email: string, matKhau: string, maCaptcha?: string) => {
     const { error } = await supabase.auth.signInWithPassword({
       email: email.trim(),
       password: matKhau,
+      options: { captchaToken: maCaptcha },
     })
     if (error) throw new Error(dichLoi(error))
   }, [])
 
   const dangKy = useCallback(
-    async (email: string, matKhau: string, hoTen: string): Promise<string> => {
+    async (
+      email: string,
+      matKhau: string,
+      hoTen: string,
+      maCaptcha?: string,
+    ): Promise<string> => {
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
         password: matKhau,
-        options: { data: { ho_ten: hoTen.trim() } },
+        options: { data: { ho_ten: hoTen.trim() }, captchaToken: maCaptcha },
       })
       if (error) throw new Error(dichLoi(error))
 
@@ -145,12 +159,13 @@ export function NhaCungCapAuth({ children }: { children: ReactNode }) {
     queryClient.clear()
   }, [])
 
-  const quenMatKhau = useCallback(async (email: string) => {
+  const quenMatKhau = useCallback(async (email: string, maCaptcha?: string) => {
     // origin chỉ là "https://tiemmay.github.io", KHÔNG gồm thư mục con.
     // Phải ghép thêm BASE_URL, nếu không link trong email sẽ rơi ra ngoài
     // dự án và người dùng không đặt lại được mật khẩu.
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
       redirectTo: `${window.location.origin}${import.meta.env.BASE_URL}dang-nhap`,
+      captchaToken: maCaptcha,
     })
     if (error) throw new Error(dichLoi(error))
   }, [])

@@ -80,7 +80,10 @@ interface GiaoDichNhap {
   don_gia: number | null
   ngay: string
   ghi_chu: string | null
+  /** Xuất vải cho đơn nào. Để trống thì không tính được lãi của đơn. */
   don_hang_id?: string | null
+  /** Nhập vải từ ai. Để trống thì sổ nợ nhà cung cấp không cộng khoản này. */
+  nha_cung_cap_id?: string | null
 }
 
 export function useGhiGiaoDichKho() {

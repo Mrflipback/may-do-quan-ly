@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/auth/AuthProvider'
 import { useCaiDat } from '@/data/heThong'
 import { Input } from '@/components/ui/Field'
+import { OTichHCaptcha, type TayCamHCaptcha } from '@/components/OTichHCaptcha'
 import { Button } from '@/components/ui/Button'
 
 /**
@@ -46,6 +47,8 @@ export function KhoaManHinh() {
   const [matKhau, setMatKhau] = useState('')
   const [loi, setLoi] = useState('')
   const [dangMo, setDangMo] = useState(false)
+  const [maCaptcha, setMaCaptcha] = useState<string | null>(null)
+  const oCaptcha = useRef<TayCamHCaptcha>(null)
   const dongHo = useRef<number | null>(null)
 
   /* Khôi phục trạng thái khoá sau khi tải lại trang */
@@ -99,6 +102,7 @@ export function KhoaManHinh() {
       const { error } = await supabase.auth.signInWithPassword({
         email: hoSo.email,
         password: matKhau,
+        options: { captchaToken: maCaptcha ?? undefined },
       })
       if (error) {
         setMatKhau('')
@@ -114,6 +118,9 @@ export function KhoaManHinh() {
     } catch {
       setLoi('Không hỏi được máy chủ. Kiểm tra lại đường mạng.')
     } finally {
+      // Mã captcha chỉ dùng được MỘT LẦN. Không lấy mã mới thì lần gõ
+      // lại sẽ nhận lỗi captcha chứ không phải lỗi mật khẩu.
+      oCaptcha.current?.datLai()
       setDangMo(false)
     }
   }
@@ -161,7 +168,14 @@ export function KhoaManHinh() {
             placeholder="Mật khẩu đăng nhập"
             loi={loi}
           />
-          <Button type="submit" className="w-full" dangTai={dangMo} disabled={matKhau.length === 0}>
+          <OTichHCaptcha ref={oCaptcha} khiCoMa={setMaCaptcha} />
+
+          <Button
+            type="submit"
+            className="w-full"
+            dangTai={dangMo}
+            disabled={matKhau.length === 0 || !maCaptcha}
+          >
             Mở khoá
           </Button>
         </form>

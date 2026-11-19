@@ -9,6 +9,7 @@ import { BaoLoi, DangTaiBang } from '@/components/ui/TrangThaiTai'
 import { useThongBao } from '@/components/ui/ThongBao'
 import { cn, dinhDangSo, dinhDangTien, ngayDiaPhuong } from '@/lib/utils'
 import { useBaoCaoDoanhThu, type NhomBaoCao } from '@/data/heThong'
+import { useLaiLo } from '@/data/chiTieu'
 
 const NHAN_KY: Record<NhomBaoCao, string> = {
   ngay: 'Theo ngày',
@@ -150,6 +151,8 @@ export function ReportsPage() {
           </CardBody>
         </Card>
       </div>
+
+      <KhoiLaiLo tu={khoang.tu} den={khoang.den} />
 
       {baoCao.isLoading ? (
         <Card>
@@ -305,5 +308,113 @@ function ThongSo({
         <p className={cn('mt-2 text-xl font-bold tracking-tight tabular-nums', mauChu)}>{giaTri}</p>
       </CardBody>
     </Card>
+  )
+}
+
+
+/* ================================================================== */
+/*  LÃI LỖ                                                             */
+/* ================================================================== */
+
+/**
+ * Doanh thu trừ giá vốn vải và chi phí chung.
+ *
+ * CHỖ DỄ HIỂU SAI NHẤT, nên màn hình nói thẳng ra:
+ *
+ * Giá vốn tính theo vải ĐÃ XUẤT cho đơn, không phải vải đã mua. Mua
+ * vải về để đấy là tiền nằm trong kho, chưa phải chi phí — tính vào
+ * là lỗ giả.
+ *
+ * Và xuất vải mà không chọn đơn thì không biết nó thuộc đơn nào. Phần
+ * tiền đó vẫn bị trừ vào lãi toàn tiệm (đúng), nhưng làm lãi của TỪNG
+ * ĐƠN kém chính xác. Con số "chưa gắn đơn" hiện ra để bạn biết số lãi
+ * đáng tin tới đâu.
+ */
+function KhoiLaiLo({ tu, den }: { tu: string; den: string }) {
+  const ll = useLaiLo(tu, den)
+  const d = ll.data
+
+  if (ll.isError) {
+    return (
+      <Card className="mb-5">
+        <CardBody>
+          <p className="rounded-lg bg-amber-50 px-3 py-2.5 text-sm text-amber-800 ring-1 ring-amber-600/20">
+            Chưa tính được lãi lỗ. Có thể chưa chạy file{' '}
+            <code className="font-mono">supabase/17_tho_may_chi_phi_ncc.sql</code> trên Supabase.
+          </p>
+        </CardBody>
+      </Card>
+    )
+  }
+
+  const vaiTong = Number(d?.vai_gan_don ?? 0) + Number(d?.vai_chua_gan ?? 0)
+  const lai = Number(d?.lai ?? 0)
+  const chuaGan = Number(d?.vai_chua_gan ?? 0)
+
+  return (
+    <Card className="mb-5">
+      <CardHeader
+        tieuDe="Lãi lỗ trong kỳ"
+        moTa="Tiền khách trả, trừ tiền vải đã dùng và chi phí chung"
+      />
+      <CardBody>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <ODong nhan="Khách đã trả" tien={Number(d?.doanh_thu ?? 0)} mau="text-emerald-700" />
+          <ODong nhan="Tiền vải đã dùng" tien={-vaiTong} mau="text-rose-700" />
+          <ODong
+            nhan="Chi phí chung"
+            tien={-Number(d?.chi_phi_chung ?? 0)}
+            mau="text-rose-700"
+          />
+          <ODong
+            nhan={lai >= 0 ? 'Còn lại' : 'Đang lỗ'}
+            tien={lai}
+            mau={lai >= 0 ? 'text-emerald-700' : 'text-rose-700'}
+            dam
+          />
+        </div>
+
+        {chuaGan > 0 && (
+          <p className="mt-4 rounded-lg bg-amber-50 px-3 py-2.5 text-sm text-amber-800 ring-1 ring-amber-600/20">
+            Trong đó <strong>{dinhDangTien(chuaGan)}</strong> tiền vải xuất ra mà{' '}
+            <strong>chưa gắn đơn hàng nào</strong>. Con số lãi toàn tiệm vẫn đúng, nhưng lãi
+            của từng đơn thì thiếu phần này. Lúc xuất vải nhớ chọn đơn.
+          </p>
+        )}
+
+        <p className="mt-3 text-xs text-slate-500">
+          Giá vốn tính theo vải <strong>đã xuất</strong> cho đơn, không phải vải đã mua. Vải
+          mua về để trong kho là tiền chưa tiêu, tính vào đây là lỗ giả.
+        </p>
+      </CardBody>
+    </Card>
+  )
+}
+
+function ODong({
+  nhan,
+  tien,
+  mau,
+  dam = false,
+}: {
+  nhan: string
+  tien: number
+  mau: string
+  dam?: boolean
+}) {
+  return (
+    <div
+      data-o-lai-lo={nhan}
+      className={cn(
+        'rounded-xl p-4 ring-1',
+        dam ? 'bg-slate-50 ring-slate-300' : 'bg-paper ring-slate-200',
+      )}
+    >
+      <p className="text-sm font-medium text-slate-500">{nhan}</p>
+      <p className={cn('mt-1.5 text-xl font-bold tabular-nums', mau)}>
+        {tien < 0 ? '− ' : ''}
+        {dinhDangTien(Math.abs(tien))}
+      </p>
+    </div>
   )
 }

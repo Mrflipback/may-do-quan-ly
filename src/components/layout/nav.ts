@@ -6,6 +6,8 @@ import {
   Ruler,
   ScrollText,
   Palette,
+  Receipt,
+  Scissors,
   Settings,
   ShoppingBag,
   Users,
@@ -45,6 +47,7 @@ export const MENU: NhomMenu[] = [
     tieuDe: 'menu.nhomSanXuat',
     muc: [
       { duongDan: '/don-hang', nhan: 'menu.donHang', icon: ShoppingBag },
+      { duongDan: '/tho-may', nhan: 'menu.thoMay', icon: Scissors },
       { duongDan: '/kho', nhan: 'menu.kho', icon: Package },
     ],
   },
@@ -52,6 +55,12 @@ export const MENU: NhomMenu[] = [
     tieuDe: 'menu.nhomTaiChinh',
     muc: [
       { duongDan: '/thanh-toan', nhan: 'menu.thanhToan', icon: Wallet },
+      {
+        duongDan: '/chi-tieu',
+        nhan: 'menu.chiTieu',
+        icon: Receipt,
+        chiDanhCho: ['quan_tri', 'quan_ly'],
+      },
       {
         duongDan: '/bao-cao',
         nhan: 'menu.baoCao',

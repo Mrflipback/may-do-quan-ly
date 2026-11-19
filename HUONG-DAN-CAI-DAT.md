@@ -67,6 +67,7 @@ Làm **y hệt** với những file sau, theo đúng thứ tự:
 | `14_sao_luu_khan.sql` | Tự chụp một bản lưu khi có việc nặng về tiền | Nên chạy |
 | `15_dat_lai_cai_dat.sql` | Khôi phục cài đặt hệ thống — cần cả tiệm đồng ý | Nên chạy |
 | `16_cho_nghi_viec.sql` | Cho một người nghỉ việc và xoá hẳn tài khoản | Nên chạy |
+| `17_tho_may_chi_phi_ncc.sql` | Thợ may · chi phí · công nợ nhà cung cấp · lãi lỗ | Nên chạy |
 
 > ⚠️ **File 06 là bắt buộc nếu bạn muốn:**
 > · cấp vai trò **Quản lý** cho ai đó,
@@ -139,6 +140,64 @@ không ăn gì nữa.
 > trên GitHub. **Thứ thật sự giữ dữ liệu là phân quyền ở máy chủ và mật khẩu
 > xoá**, không phải ô này. Bật cho đỡ ngứa mắt thì được, đừng vì có nó mà yên
 > tâm hơn.
+
+### Lãi lỗ, thợ may, công nợ nhà cung cấp
+
+Ba mảng này thêm vào sau, vá ba lỗ hổng của bản cũ. Phải chạy
+`17_tho_may_chi_phi_ncc.sql` thì mới dùng được.
+
+#### 1. Biết lãi bao nhiêu, không chỉ thu bao nhiêu
+
+**Báo cáo doanh thu** giờ có thêm khối **Lãi lỗ trong kỳ**:
+
+```
+Khách đã trả  −  Tiền vải đã dùng  −  Chi phí chung  =  Còn lại
+```
+
+**Điều dễ hiểu sai nhất:** giá vốn tính theo vải **đã xuất** cho đơn, không phải
+vải **đã mua**. Vải mua về để trong kho là tiền chưa tiêu — tính vào là lỗ giả.
+
+Muốn con số này đúng thì **lúc xuất vải nhớ chọn đơn hàng**. Ô chọn nằm ngay
+trong phiếu xuất kho. Không chọn cũng được (vải dùng chung, vải hỏng), nhưng
+báo cáo sẽ hiện rõ *"có bao nhiêu tiền vải chưa gắn đơn"* để bạn biết con số
+lãi đáng tin tới đâu.
+
+**Chi tiêu › Chi phí chung** để ghi thuê nhà, điện nước, lương thợ.
+
+> **Đừng ghi tiền vải vào Chi phí chung.** Nó đã nằm trong mục Kho rồi. Ghi lại
+> lần nữa là tính hai lần, lãi sẽ thành âm oan.
+
+#### 2. Biết ai may đơn nào
+
+Mục **Thợ may** trên thanh menu. Thêm thợ ở đó, rồi chọn thợ trong form đơn hàng.
+Danh sách đơn hiện luôn tên thợ.
+
+Trang Thợ may cho biết mỗi người đang ôm mấy đơn, đang may mấy đơn, và **mấy đơn
+đã trễ hẹn**.
+
+**Thợ không cần tài khoản đăng nhập** — đây là danh sách riêng, tách khỏi mục
+Tài khoản & phân quyền.
+
+> Thợ nghỉ việc thì bấm **Cho nghỉ**, đừng xoá. Xoá là mấy đơn cũ mất tên người
+> may — mà đó đúng là thứ cần tra lại khi khách phàn nàn.
+
+#### 3. Biết mình nợ ai
+
+**Chi tiêu › Nhà cung cấp.** Thêm nhà cung cấp, rồi **mỗi lần nhập vải nhớ chọn**
+nhập từ ai. Sổ nợ tự cộng: tiền hàng trừ đã trả.
+
+Ghi trả tiền cũng ở màn hình đó, làm giống hệt cách ghi khách trả tiền.
+
+> Sổ nợ chỉ tính được những lần nhập **có chọn nhà cung cấp**. Mấy lần nhập từ
+> trước khi có mục này đều chưa gắn, nên không nằm trong con số nợ.
+
+#### Mấy bảng mới đã nối sẵn vào chỗ khác
+
+| Nối vào | Nghĩa là |
+|---|---|
+| Sao lưu & khôi phục | Bốn bảng mới nằm trong file sao lưu, khôi phục cũng về đủ |
+| Nhật ký hoạt động | Sửa chi phí hay tiền trả nhà cung cấp đều bị ghi lại |
+| Bản lưu tự chụp | Bản chụp khẩn có luôn bốn bảng mới |
 
 ### Cho một người nghỉ việc
 
@@ -288,6 +347,70 @@ Tính theo giờ trên máy bạn đang dùng, nên không lệch múi giờ.
 > Nhãn **địa chỉ mạng lạ** cần chạy `13_danh_dau_ip_la.sql`. Chưa chạy thì ba
 > nhãn kia vẫn hoạt động bình thường, chỉ thiếu mỗi nhãn đó.
 
+### Ô tích chống bot (hCaptcha)
+
+Ở ba màn hình có ô mật khẩu — **đăng nhập**, **mở khoá màn hình**, **khôi phục
+cài đặt hệ thống** — có thêm một ô tích "Tôi là con người". Chưa tích thì nút
+bấm vẫn xám, không bấm được.
+
+**Vì sao phải có.** Trong phần Authentication của Supabase bạn đã bật
+*Enable Captcha protection*. Từ lúc bật, Supabase **từ chối mọi lần đăng nhập
+không kèm mã captcha** — kể cả mật khẩu đúng. Nên ô tích này không phải để cho
+đẹp: không có nó thì không ai vào được phần mềm nữa.
+
+**Nó chặn được gì.** Chặn máy dò mật khẩu. Một con bot thử mười nghìn mật khẩu
+một đêm sẽ dừng lại ngay ở ô này. Nó **không** chặn được người thật ngồi gõ tay,
+và cũng không thay cho mật khẩu mạnh.
+
+#### Bốn chỗ phải khai cho khớp
+
+| Nơi khai | Khai cái gì |
+|---|---|
+| hCaptcha → Sites → Domain listing | `mrflipback.github.io` — chỉ tên miền, **không** kèm `/may-do-quan-ly` |
+| Supabase → Authentication → Bot and Abuse Protection | Chọn **hCaptcha**, dán **Secret key** |
+| Mã nguồn | Sitekey đã gắn sẵn trong `src/components/OTichHCaptcha.tsx` |
+| (tuỳ chọn) file `.env` | `VITE_HCAPTCHA_SITEKEY=...` nếu sau này đổi sitekey |
+
+> **Secret key và Sitekey là hai thứ khác nhau.** Sitekey nằm trong mã nguồn,
+> ai cũng xem được — đúng thiết kế, không sao cả. Secret key chỉ khai ở Supabase,
+> **đừng bao giờ** đặt vào `.env` của phần mềm hay đẩy lên GitHub.
+
+#### Khi đổi sitekey
+
+Không phải sửa mã nguồn. Thêm vào file `.env`:
+
+```
+VITE_HCAPTCHA_SITEKEY=khoa-moi-cua-ban
+```
+
+Nếu đăng qua GitHub Actions thì khai thêm một secret cùng tên trong
+Settings → Secrets and variables → Actions, và thêm dòng đó vào bước build
+của `.github/workflows/deploy.yml` cho giống hai secret Supabase đang có.
+
+#### Một điều kỹ thuật đã phải đánh đổi
+
+Phần mềm bật **Trusted Types** — một lớp chặn ở tầng DOM, cấm gán chuỗi thô vào
+`innerHTML`, `script.src`... Thư viện hCaptcha thì **có** làm đúng mấy việc đó
+để tự nhét ô tích vào trang, nên lúc đầu ô tích không hiện ra.
+
+Cách xử lý: trong `index.html` có một **chính sách mặc định** chạy trước mọi thứ.
+Nó vẫn soi địa chỉ script — chỉ cho chính trang này và `hcaptcha.com`, địa chỉ lạ
+là chặn thẳng — nhưng **cho phần HTML đi qua**. Nghĩa là lớp chặn `innerHTML`
+không còn. Đổi lại, dòng `script-src` trong CSP vẫn chặn mọi script lạ chạy, nên
+phần mất đi không nhiều.
+
+Đã đo thật trên bản dựng: chặn script lạ ✓, cho hCaptcha tải ✓, chặn tạo mã chạy
+từ chuỗi ✓, HTML đi qua (đã biết, là phần đánh đổi).
+
+#### Lỗi hay gặp
+
+| Hiện tượng | Nguyên nhân |
+|---|---|
+| Ô tích không hiện, chỉ một ô trống | Tên miền chưa khai trong Domain listing của hCaptcha |
+| Tích xong, bấm vẫn báo sai mật khẩu | Secret key khai ở Supabase không khớp với sitekey |
+| Bấm lần hai thì báo lỗi lạ | Mã captcha chỉ dùng **một lần** — phần mềm đã tự xin mã mới sau mỗi lần bấm, nếu vẫn lỗi thì tải lại trang |
+| Chạy trên máy hiện chữ đỏ "localhost detected" | Bình thường, hCaptcha chỉ cảnh báo khi chạy ở `localhost`. Lên tên miền thật là hết |
+
 ### Header bảo mật
 
 Phần mềm có sẵn một lớp **Content-Security-Policy** — bản nói cho trình
@@ -343,6 +466,23 @@ Trusted Types chặn mã *được dựng lên từ chuỗi chữ ngay trong tra
 
 Đã quét cả **11 trang quản lý** trên bản đã đóng gói: không trang nào dùng tới
 mấy hàm đó, nên bật lên không hỏng gì.
+
+**Nhưng thư viện hCaptcha thì có dùng.** Nó tự nhét thẻ `<script>` của nó vào
+trang, nên lúc mới gắn ô tích chống bot thì ô tích không hiện ra — Trusted Types
+chặn mất. Cách xử lý nằm trong `index.html`: một **chính sách mặc định** chạy
+trước mọi thứ khác, soi từng địa chỉ script được gắn vào trang.
+
+| Việc | Chính sách xử sao |
+|---|---|
+| Gắn script của chính trang này | Cho qua |
+| Gắn script từ `hcaptcha.com` | Cho qua |
+| Gắn script từ địa chỉ khác | **Chặn**, ném lỗi |
+| Tạo mã chạy từ chuỗi chữ (`script.text`) | **Chặn**, ném lỗi |
+| Gán HTML vào `innerHTML` | Cho qua — đây là phần phải đánh đổi |
+
+Nghĩa là lớp chặn `innerHTML` không còn. Đổi lại, dòng `script-src` phía trên vẫn
+chặn mọi script lạ chạy, nên phần mất đi không nhiều. Bốn dòng trong bảng trên đã
+được **đo thật** trên bản dựng, không phải suy đoán.
 
 > Chỉ **Chromium** hiểu (Chrome, Edge, Cốc Cốc). Firefox và Safari bỏ qua dòng
 > này — không hỏng gì, chỉ là không được bảo vệ thêm.

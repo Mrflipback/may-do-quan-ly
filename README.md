@@ -61,7 +61,9 @@ npm run dev
 | **Đơn hàng** | Nhiều sản phẩm trong một đơn, đổi trạng thái, cảnh báo trễ hẹn |
 | **Kho** | Vải và phụ liệu, phiếu nhập / xuất, tồn kho tự tính, cảnh báo hết hàng |
 | **Thanh toán** | Tiền cọc, thu nhiều lần, theo dõi công nợ từng đơn |
-| **Báo cáo** | Doanh thu theo ngày / tháng / năm, xuất Excel, in báo cáo |
+| **Thợ may** | Ai may đơn nào, ai đang ôm nhiều việc, ai có đơn trễ hẹn |
+| **Chi tiêu** | Chi phí chung và công nợ nhà cung cấp |
+| **Báo cáo** | Doanh thu theo ngày / tháng / năm, **lãi lỗ**, xuất Excel, in báo cáo |
 | **In phiếu** | Phiếu số đo, phiếu đơn hàng, phiếu thanh toán — khổ A4 |
 | **Nhật ký** | Ai sửa gì, lúc nào, tiền trước và sau. Thêm thẻ **Đăng nhập**: ai vào, lúc nào, từ IP nào (chỉ Quản trị viên). Cả hai đều **tự đánh dấu truy cập lạ** |
 | **Giao diện** | Màu chủ đạo, cỡ chữ, bộ góc, hiệu ứng — mỗi người một kiểu riêng |

@@ -3,6 +3,7 @@ import { Plus, Trash } from 'lucide-react'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { Input, Select, Textarea } from '@/components/ui/Field'
+import { useDanhSachTho } from '@/data/thoMay'
 import { useThongBao } from '@/components/ui/ThongBao'
 import { NHAN_LOAI_TRANG_PHUC, NHAN_TRANG_THAI } from '@/lib/constants'
 import { dinhDangTien, ngayCongThem, ngayHomNay } from '@/lib/utils'
@@ -48,6 +49,10 @@ export function FormDonHang({ moRa, dong, donDangSua, khachMacDinh }: Props) {
   const [ngayNhan, setNgayNhan] = useState(HOM_NAY())
   const [ngayHenGiao, setNgayHenGiao] = useState(SAU_14_NGAY())
   const [trangThai, setTrangThai] = useState<TrangThaiDonHang>('moi')
+  const [thoId, setThoId] = useState('')
+  // Chỉ thợ đang làm việc mới hiện ra để chọn. Thợ đã nghỉ vẫn giữ
+  // nguyên trên những đơn cũ, chỉ là không gán thêm đơn mới được.
+  const dsTho = useDanhSachTho(false)
   const [giamGia, setGiamGia] = useState('0')
   const [ghiChu, setGhiChu] = useState('')
   const [dongSP, setDongSP] = useState<DongSanPhamNhap[]>([DONG_RONG()])
@@ -75,6 +80,7 @@ export function FormDonHang({ moRa, dong, donDangSua, khachMacDinh }: Props) {
       setNgayNhan(donDangSua.ngay_nhan)
       setNgayHenGiao(donDangSua.ngay_hen_giao)
       setTrangThai(donDangSua.trang_thai)
+      setThoId(donDangSua.tho_may_id ?? '')
       setGiamGia(String(Number(donDangSua.giam_gia) || 0))
       setGhiChu(donDangSua.ghi_chu ?? '')
     } else {
@@ -83,6 +89,7 @@ export function FormDonHang({ moRa, dong, donDangSua, khachMacDinh }: Props) {
       setNgayNhan(HOM_NAY())
       setNgayHenGiao(SAU_14_NGAY())
       setTrangThai('moi')
+      setThoId('')
       setGiamGia('0')
       setGhiChu('')
       setDongSP([DONG_RONG()])
@@ -158,6 +165,7 @@ export function FormDonHang({ moRa, dong, donDangSua, khachMacDinh }: Props) {
       trang_thai: trangThai,
       giam_gia: soGiamGia,
       ghi_chu: ghiChu.trim() || null,
+      tho_may_id: thoId || null,
     }
 
     try {
@@ -243,6 +251,24 @@ export function FormDonHang({ moRa, dong, donDangSua, khachMacDinh }: Props) {
             {(Object.keys(NHAN_TRANG_THAI) as TrangThaiDonHang[]).map((t) => (
               <option key={t} value={t}>
                 {NHAN_TRANG_THAI[t]}
+              </option>
+            ))}
+          </Select>
+
+          <Select
+            nhan="Thợ may"
+            value={thoId}
+            onChange={(e) => setThoId(e.target.value)}
+            goiY={
+              (dsTho.data ?? []).length === 0
+                ? 'Chưa có thợ nào. Thêm ở mục Thợ may trên thanh menu.'
+                : 'Để trống cũng được, gán sau cũng được.'
+            }
+          >
+            <option value="">— chưa phân công —</option>
+            {(dsTho.data ?? []).map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.ho_ten}
               </option>
             ))}
           </Select>

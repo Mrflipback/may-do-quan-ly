@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { CircleCheck, KeyRound, RotateCcw, ShieldAlert, Users, X } from 'lucide-react'
 import { Card, CardBody, CardHeader } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
@@ -9,6 +9,7 @@ import { useAuth } from '@/auth/AuthProvider'
 import { supabase } from '@/lib/supabase'
 import { dichLoi } from '@/lib/loi'
 import { cauLoi, loiMatKhauMoi } from '@/lib/matKhauXoa'
+import { OTichHCaptcha, type TayCamHCaptcha } from '@/components/OTichHCaptcha'
 import {
   useChayDatLai,
   useHuyPhieu,
@@ -18,10 +19,23 @@ import {
   useTaoPhieu,
 } from '@/data/datLaiCaiDat'
 
-/** Hỏi Supabase xem mật khẩu đăng nhập của chính người này có đúng không. */
-async function dungMatKhauDangNhap(email: string | null, mk: string): Promise<boolean> {
+/**
+ * Hỏi Supabase xem mật khẩu đăng nhập của chính người này có đúng không.
+ *
+ * Supabase đang bật chống bot nên phải kèm mã captcha, nếu không nó chặn
+ * trước cả khi xét tới mật khẩu.
+ */
+async function dungMatKhauDangNhap(
+  email: string | null,
+  mk: string,
+  maCaptcha: string | null,
+): Promise<boolean> {
   if (!email) return false
-  const { error } = await supabase.auth.signInWithPassword({ email, password: mk })
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password: mk,
+    options: { captchaToken: maCaptcha ?? undefined },
+  })
   return !error
 }
 
@@ -137,6 +151,8 @@ export function TheDatLaiCaiDat() {
 
   const [lyDo, setLyDo] = useState('')
   const [mkDangNhap, setMkDangNhap] = useState('')
+  const [maCaptcha, setMaCaptcha] = useState<string | null>(null)
+  const oCaptcha = useRef<TayCamHCaptcha>(null)
   const [mkKhoiPhuc, setMkKhoiPhuc] = useState('')
   const [loi, setLoi] = useState('')
 
@@ -159,7 +175,10 @@ export function TheDatLaiCaiDat() {
   const ky = async () => {
     if (!p) return
     setLoi('')
-    if (!(await dungMatKhauDangNhap(hoSo?.email ?? null, mkDangNhap))) {
+    const dung = await dungMatKhauDangNhap(hoSo?.email ?? null, mkDangNhap, maCaptcha)
+    // Mã captcha chỉ dùng được một lần, kể cả khi mật khẩu đúng
+    oCaptcha.current?.datLai()
+    if (!dung) {
       setMkDangNhap('')
       return setLoi('Mật khẩu đăng nhập không đúng.')
     }
@@ -177,7 +196,9 @@ export function TheDatLaiCaiDat() {
   const batDau = async () => {
     if (!p) return
     setLoi('')
-    if (!(await dungMatKhauDangNhap(hoSo?.email ?? null, mkDangNhap))) {
+    const dungMk = await dungMatKhauDangNhap(hoSo?.email ?? null, mkDangNhap, maCaptcha)
+    oCaptcha.current?.datLai()
+    if (!dungMk) {
       setMkDangNhap('')
       return setLoi('Mật khẩu đăng nhập không đúng.')
     }
@@ -308,11 +329,12 @@ export function TheDatLaiCaiDat() {
                   autoComplete="current-password"
                   goiY="Hỏi lại để người ngồi vào máy đang mở sẵn không bấm hộ bạn được."
                 />
+                <OTichHCaptcha ref={oCaptcha} khiCoMa={setMaCaptcha} />
                 <Button
                   iconTrai={<CircleCheck className="size-4" />}
                   onClick={() => void ky()}
                   dangTai={kyPhieu.isPending}
-                  disabled={mkDangNhap.length === 0}
+                  disabled={mkDangNhap.length === 0 || !maCaptcha}
                 >
                   Tôi đồng ý khôi phục
                 </Button>
@@ -337,12 +359,13 @@ export function TheDatLaiCaiDat() {
                   onChange={(e) => setMkKhoiPhuc(e.target.value)}
                   autoComplete="off"
                 />
+                <OTichHCaptcha ref={oCaptcha} khiCoMa={setMaCaptcha} />
                 <Button
                   kieu="nguyHiem"
                   iconTrai={<RotateCcw className="size-4" />}
                   onClick={() => void batDau()}
                   dangTai={chay.isPending}
-                  disabled={mkDangNhap.length === 0 || mkKhoiPhuc.length === 0}
+                  disabled={mkDangNhap.length === 0 || mkKhoiPhuc.length === 0 || !maCaptcha}
                 >
                   Khôi phục cài đặt ngay
                 </Button>

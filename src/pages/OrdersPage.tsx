@@ -176,6 +176,12 @@ export function OrdersPage() {
                       <p className="mt-1 font-medium text-slate-800">{d.ten_khach}</p>
                       <p className="mt-0.5 text-sm text-slate-500">
                         {d.so_mon} món · {d.sdt_khach}
+                        {d.ten_tho ? (
+                          <>
+                            {' · thợ '}
+                            <span className="font-medium text-slate-700">{d.ten_tho}</span>
+                          </>
+                        ) : null}
                       </p>
                     </div>
 

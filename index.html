@@ -18,6 +18,48 @@
       rel="stylesheet"
     />
     <script>
+      // ==========================================================
+      // CHINH SACH "TRUSTED TYPES" - PHAI CHAY TRUOC MOI THU KHAC
+      // ==========================================================
+      // Dong "require-trusted-types-for 'script'" trong CSP cam gan
+      // chuoi tho vao innerHTML, script.src, script.text... Phan mem
+      // cua tiem khong cho nao lam vay, nhung thu vien chong bot
+      // hCaptcha thi CO - no tu nhet the <script> cua no vao trang.
+      //
+      // Khong co doan nay thi o tich chong bot khong hien ra, ma
+      // Supabase dang bat chong bot => KHONG AI DANG NHAP DUOC.
+      //
+      // Chinh sach nay khong mo toang: dia chi script van bi soi,
+      // chi cho chinh trang nay va hcaptcha.com. Phan HTML thi cho
+      // qua - nhung dong "script-src" o tren van chan moi script la
+      // chay, nen khong mat gi nhieu.
+      (function datChinhSach() {
+        var tt = window.trustedTypes;
+        if (!tt || !tt.createPolicy) return; // Firefox, Safari: bo qua
+        try {
+          tt.createPolicy('default', {
+            createScriptURL: function (duong) {
+              var d = new URL(duong, document.baseURI);
+              if (d.origin === window.location.origin) return duong;
+              if (/^([a-z0-9-]+\.)?hcaptcha\.com$/.test(d.hostname) && d.protocol === 'https:') {
+                return duong;
+              }
+              throw new TypeError('Chan dia chi script la: ' + d.href);
+            },
+            createHTML: function (s) {
+              return s;
+            },
+            createScript: function () {
+              // Khong cho tao ma chay tu chuoi. CSP cung da chan san.
+              throw new TypeError('Khong cho tao ma chay tu chuoi.');
+            },
+          });
+        } catch (e) {
+          // Da co chinh sach ten 'default' roi thi thoi, khong sao.
+        }
+      })();
+    </script>
+    <script>
       // Khoi phuc duong dan sau khi 404.html day ve. Xem giai thich day du
       // trong public/404.html. Chay cang som cang tot, truoc khi ve giao dien.
       // Chay o goc "/" (tren may, tren Vercel) thi doan nay khong lam gi ca.

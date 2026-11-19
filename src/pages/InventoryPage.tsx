@@ -14,6 +14,8 @@ import { cn, dinhDangSo, dinhDangTien, ngayHomNay } from '@/lib/utils'
 import { dichLoi } from '@/lib/loi'
 import { useAuth } from '@/auth/AuthProvider'
 import { useDanhSachVatTu, useGhiGiaoDichKho, useLuuVatTu, useXoaVatTu } from '@/data/kho'
+import { useDanhSachNcc } from '@/data/chiTieu'
+import { useDanhSachDonHang } from '@/data/donHang'
 import type { LoaiGiaoDichKho, LoaiVatTu, VatTuDayDu, VatTuNhap } from '@/types'
 
 const RONG: VatTuNhap = {
@@ -516,8 +518,24 @@ function FormGiaoDich({
   const [donGia, setDonGia] = useState('')
   const [ngay, setNgay] = useState(ngayHomNay())
   const [ghiChu, setGhiChu] = useState('')
+  const [donId, setDonId] = useState('')
+  const [nccId, setNccId] = useState('')
 
   const laNhap = giaoDich?.loai === 'nhap'
+
+  /*
+   * Hai danh sách này là chỗ nối để tính được LÃI LỖ và CÔNG NỢ.
+   *
+   * Xuất vải mà không chọn đơn thì không biết tiền vải đó thuộc đơn nào
+   * -> lãi của từng đơn sai. Nhập vải mà không chọn nhà cung cấp thì
+   * không biết mình nợ ai -> sổ nợ thiếu.
+   *
+   * Cả hai đều KHÔNG bắt buộc: vải dùng chung, vải hỏng, hàng mua lẻ
+   * ngoài chợ đều có thật. Nhưng màn hình có nhắc, và báo cáo nói rõ
+   * có bao nhiêu tiền chưa gắn.
+   */
+  const dsDon = useDanhSachDonHang()
+  const dsNcc = useDanhSachNcc()
 
   useEffect(() => {
     if (!giaoDich) return
@@ -525,6 +543,8 @@ function FormGiaoDich({
     setDonGia(String(Number(giaoDich.vt.gia_nhap) || 0))
     setNgay(ngayHomNay())
     setGhiChu('')
+    setDonId('')
+    setNccId('')
   }, [giaoDich])
 
   const gui = async (e: React.FormEvent) => {
@@ -542,6 +562,8 @@ function FormGiaoDich({
         don_gia: laNhap ? Number(donGia) || null : null,
         ngay,
         ghi_chu: ghiChu.trim() || null,
+        don_hang_id: laNhap ? null : donId || null,
+        nha_cung_cap_id: laNhap ? nccId || null : null,
       })
       tb.thanhCong(
         `Đã ${laNhap ? 'nhập' : 'xuất'} ${dinhDangSo(sl)} ${giaoDich.vt.don_vi_tinh} ` +
@@ -605,6 +627,42 @@ function FormGiaoDich({
               value={donGia}
               onChange={(e) => setDonGia(e.target.value)}
             />
+          )}
+
+          {laNhap ? (
+            <Select
+              nhan="Nhập từ nhà cung cấp nào"
+              value={nccId}
+              onChange={(e) => setNccId(e.target.value)}
+              goiY={
+                (dsNcc.data ?? []).length === 0
+                  ? 'Chưa có nhà cung cấp nào. Thêm ở mục Chi tiêu.'
+                  : 'Chọn thì sổ nợ nhà cung cấp mới cộng đúng.'
+              }
+            >
+              <option value="">— không ghi nợ ai —</option>
+              {(dsNcc.data ?? []).map((n) => (
+                <option key={n.id} value={n.id}>
+                  {n.ten}
+                </option>
+              ))}
+            </Select>
+          ) : (
+            <Select
+              nhan="Xuất cho đơn hàng nào"
+              value={donId}
+              onChange={(e) => setDonId(e.target.value)}
+              goiY="Chọn thì mới tính được đơn đó lãi bao nhiêu. Vải dùng chung thì để trống."
+            >
+              <option value="">— không thuộc đơn nào —</option>
+              {(dsDon.data ?? [])
+                .filter((x) => x.trang_thai !== 'da_giao' && x.trang_thai !== 'da_huy')
+                .map((x) => (
+                  <option key={x.id} value={x.id}>
+                    {x.ma_don} — {x.ten_khach}
+                  </option>
+                ))}
+            </Select>
           )}
 
           <Input

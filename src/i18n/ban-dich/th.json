@@ -147,7 +147,9 @@
     "nhatKy": "บันทึกการใช้งาน",
     "inPhieu": "พิมพ์ใบงาน",
     "giaoDien": "รูปลักษณ์",
-    "caiDat": "ตั้งค่า"
+    "caiDat": "ตั้งค่า",
+    "thoMay": "ช่างตัดเย็บ",
+    "chiTieu": "รายจ่าย"
   },
   "baoVe": {
     "khongTimThayTrang": "ไม่พบหน้านี้",

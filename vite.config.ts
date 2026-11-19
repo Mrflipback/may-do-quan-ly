@@ -118,20 +118,31 @@ function themHeaderBaoMat(diaChiMayChu: string): Plugin {
         ? mayChu.replace(/\/$/, "")
         : 'https://*.supabase.co'
 
+      // hCaptcha can mo bon huong: tai script, goi ve may chu no, nhet
+      // khung iframe vao trang, va cai kieu dang cua no. Thieu bat ky
+      // huong nao la o tich khong hien ra hoac hien ra ma bam khong an.
+      //
+      // Supabase dang bat chong bot cho phan dang nhap, nen khong co o
+      // tich nay thi KHONG AI VAO DUOC phan mem.
+      const HCAPTCHA = 'https://hcaptcha.com https://*.hcaptcha.com'
+
       const csp = [
         "default-src 'self'",
         "base-uri 'self'",
         "object-src 'none'",
-        `script-src 'self' ${bam.join(' ')}`,
+        `script-src 'self' ${bam.join(' ')} ${HCAPTCHA}`,
         // unsafe-inline cho KIEU DANG: React dat style thang tren the
         // (do tre hieu ung, thanh tien do...). Kieu dang noi dong nguy
         // hiem thap hon han script noi dong.
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+        `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com ${HCAPTCHA}`,
         "font-src 'self' data: https://fonts.gstatic.com",
         "img-src 'self' data: blob:",
-        `connect-src 'self' ${noiToi} https://api.country.is`,
+        `connect-src 'self' ${noiToi} https://api.country.is ${HCAPTCHA}`,
         "form-action 'self'",
-        "frame-src 'none'",
+        // Truoc day la 'none'. hCaptcha ve o tich bang mot khung iframe
+        // rieng cua no, nen phai mo dung hai ten mien nay — khong mo
+        // rong ra ai khac.
+        `frame-src ${HCAPTCHA}`,
         "worker-src 'self' blob:",
         "manifest-src 'self'",
         // Trusted Types: chan han viec gan chuoi tho vao innerHTML,

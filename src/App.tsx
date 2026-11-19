@@ -12,6 +12,8 @@ import { CustomersPage } from '@/pages/CustomersPage'
 import { MeasurementsPage } from '@/pages/MeasurementsPage'
 import { OrdersPage } from '@/pages/OrdersPage'
 import { InventoryPage } from '@/pages/InventoryPage'
+import { ThoMayPage } from '@/pages/ThoMayPage'
+import { ChiTieuPage } from '@/pages/ChiTieuPage'
 import { PaymentsPage } from '@/pages/PaymentsPage'
 import { ReportsPage } from '@/pages/ReportsPage'
 import { PrintPage } from '@/pages/PrintPage'
@@ -61,12 +63,21 @@ export function App() {
                 <Route path="/khach-hang" element={<CustomersPage />} />
                 <Route path="/so-do" element={<MeasurementsPage />} />
                 <Route path="/don-hang" element={<OrdersPage />} />
+                <Route path="/tho-may" element={<ThoMayPage />} />
                 <Route path="/kho" element={<InventoryPage />} />
                 <Route path="/thanh-toan" element={<PaymentsPage />} />
                 <Route path="/in-phieu" element={<PrintPage />} />
                 {/* Ai cung chinh duoc giao dien cua rieng minh */}
                 <Route path="/giao-dien" element={<GiaoDienPage />} />
 
+                <Route
+                  path="/chi-tieu"
+                  element={
+                    <CanQuanLy>
+                      <ChiTieuPage />
+                    </CanQuanLy>
+                  }
+                />
                 <Route
                   path="/bao-cao"
                   element={

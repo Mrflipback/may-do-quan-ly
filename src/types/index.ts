@@ -131,6 +131,8 @@ export interface DonHang {
   giam_gia: number
   ghi_chu: string | null
   ngay_tao: string
+  /** Thợ may được phân công. Khác nguoi_tao — đó là người nhập đơn vào máy. */
+  tho_may_id: string | null
 }
 
 /** Dòng lấy từ view v_don_hang. */
@@ -143,6 +145,8 @@ export interface DonHangDayDu extends DonHang {
   da_tra: number
   con_lai: number
   so_mon: number
+  /** Tên thợ may, lấy kèm từ khung nhìn nên không phải hỏi thêm lượt nào. */
+  ten_tho: string | null
 }
 
 export interface DonHangNhap {
@@ -153,6 +157,7 @@ export interface DonHangNhap {
   trang_thai: TrangThaiDonHang
   giam_gia: number
   ghi_chu: string | null
+  tho_may_id: string | null
 }
 
 /* ------------------------------ Kho ------------------------------ */

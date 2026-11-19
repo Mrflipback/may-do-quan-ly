@@ -38,6 +38,10 @@ const KHOA_CHINH: Record<string, string> = {
   thanh_toan: 'id',
   vat_tu: 'id',
   giao_dich_kho: 'id',
+  tho_may: 'id',
+  nha_cung_cap: 'id',
+  tra_nha_cung_cap: 'id',
+  chi_phi: 'id',
 }
 
 /**
@@ -50,6 +54,8 @@ const KHOA_CHINH: Record<string, string> = {
 export const THU_TU_NAP = [
   'cai_dat',
   'nguoi_dung',
+  'tho_may',
+  'nha_cung_cap',
   'khach_hang',
   'ho_so_so_do',
   'vat_tu',
@@ -57,6 +63,8 @@ export const THU_TU_NAP = [
   'dong_san_pham',
   'thanh_toan',
   'giao_dich_kho',
+  'tra_nha_cung_cap',
+  'chi_phi',
 ] as const
 
 export type TenBang = (typeof THU_TU_NAP)[number]
@@ -72,6 +80,10 @@ export const NHAN_BANG: Record<TenBang, string> = {
   dong_san_pham: 'Dòng sản phẩm trong đơn',
   thanh_toan: 'Thanh toán',
   giao_dich_kho: 'Xuất nhập kho',
+  tho_may: 'Thợ may',
+  nha_cung_cap: 'Nhà cung cấp',
+  tra_nha_cung_cap: 'Trả nhà cung cấp',
+  chi_phi: 'Chi phí chung',
 }
 
 /** Bảng chưa chắc đã có (phải chạy file SQL 05 mới sinh ra). */
