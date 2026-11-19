@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { ChonNgonNgu, ChuNhanManh, GoiYNgonNgu } from '@/components/ChonNgonNgu'
+import { ThuVienAnhMau } from '@/components/ThuVienAnhMau'
 import { LoDan } from '@/components/LoDan'
 import { TIEM_MAC_DINH, useThongTinTiemCongKhai } from '@/data/thongTinTiem'
 import { useChanPhimTatCongKhai } from '@/lib/chanDevTools'
@@ -88,6 +89,9 @@ export function ShopPage() {
           <nav className="mr-2 hidden items-center gap-7 text-sm font-medium text-brand-100/80 lg:flex">
             <a href="#san-pham" className="transition-colors hover:text-white">
               {dich('shop.menuSanPham')}
+            </a>
+            <a href="#mau-da-may" className="transition-colors hover:text-white">
+              {dich('shop.menuMau')}
             </a>
             <a href="#bang-gia" className="transition-colors hover:text-white">
               {dich('shop.menuBangGia')}
@@ -200,6 +204,20 @@ export function ShopPage() {
               </article>
             </LoDan>
           ))}
+        </div>
+      </section>
+
+      {/* ----------------------------- Mẫu đã may ----------------------------- */}
+      <section id="mau-da-may" className="border-t border-slate-200/80 bg-paper">
+        <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-24">
+          <LoDan>
+            <Kicker>{dich('shop.mauKicker')}</Kicker>
+            <h2 className="mt-4 font-display text-3xl font-semibold leading-tight text-slate-900 sm:text-4xl">
+              {dich('shop.mauTieuDe')}
+            </h2>
+            <p className="mt-3 max-w-xl text-slate-600">{dich('shop.mauMoTa')}</p>
+          </LoDan>
+          <ThuVienAnhMau />
         </div>
       </section>
 

@@ -217,10 +217,19 @@ export function SettingsPage() {
               <DangTaiBang soDong={3} />
             ) : nhanSu.isError ? (
               <BaoLoi loi={nhanSu.error} thuLai={() => void nhanSu.refetch()} />
+            ) : !nhanSu.data ? (
+              /* Mất mạng giữa chừng thì TanStack Query chuyển sang trạng thái
+                 "tạm dừng": isLoading và isError đều false mà data vẫn rỗng.
+                 Dấu "!" ở .data!.map() che đúng trường hợp này và làm trắng
+                 cả phần mềm. Phải có nhánh riêng cho nó. */
+              <BaoLoi
+                loi={new Error('Chưa tải được danh sách tài khoản. Kiểm tra lại kết nối mạng.')}
+                thuLai={() => void nhanSu.refetch()}
+              />
             ) : (
               <>
                 <ul className="divide-y divide-slate-100">
-                  {nhanSu.data!.map((u) => {
+                  {nhanSu.data.map((u) => {
                     const laToi = u.id === hoSo?.id
                     return (
                       <li key={u.id} className="flex items-center gap-3 px-4 py-3.5 sm:px-5">

@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
+import { mocCuoiNgay, mocDauNgay } from '@/lib/utils'
 import { KHOA } from './chung'
 import type { NhatKy } from '@/types'
 
@@ -31,8 +32,8 @@ function apBoLoc(
   loc: BoLocNhatKy,
 ) {
   let t = q
-    .gte('thoi_diem', `${loc.tuNgay}T00:00:00`)
-    .lte('thoi_diem', `${loc.denNgay}T23:59:59.999`)
+    .gte('thoi_diem', mocDauNgay(loc.tuNgay))
+    .lte('thoi_diem', mocCuoiNgay(loc.denNgay))
   if (loc.nguoiId) t = t.eq('nguoi_id', loc.nguoiId)
   if (loc.hanhDong !== 'tat_ca') t = t.eq('hanh_dong', loc.hanhDong)
   if (loc.bang) t = t.eq('bang', loc.bang)

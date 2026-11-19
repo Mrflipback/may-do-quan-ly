@@ -9,14 +9,14 @@ import { Input, Select, Textarea } from '@/components/ui/Field'
 import { BaoLoi, DangTaiBang } from '@/components/ui/TrangThaiTai'
 import { HopThoaiXacNhan, useThongBao } from '@/components/ui/ThongBao'
 import { NHOM_SO_DO } from '@/lib/constants'
-import { dinhDangNgay } from '@/lib/utils'
+import { dinhDangNgay, ngayHomNay } from '@/lib/utils'
 import { dichLoi } from '@/lib/loi'
 import { useAuth } from '@/auth/AuthProvider'
 import { useKhachHangRutGon } from '@/data/khachHang'
 import { useDanhSachSoDo, useSuaSoDo, useThemSoDo, useXoaSoDo } from '@/data/soDo'
 import type { HoSoSoDo } from '@/types'
 
-const HOM_NAY = () => new Date().toISOString().slice(0, 10)
+const HOM_NAY = () => ngayHomNay()
 
 export function MeasurementsPage() {
   const { hoSo, laQuanTri } = useAuth()
@@ -155,6 +155,20 @@ export function MeasurementsPage() {
         <PageHeader tieuDe="Hồ sơ số đo" />
         <Card>
           <DangTaiBang />
+        </Card>
+      </div>
+    )
+  }
+
+  /* Mất mạng hay hết hạn phiên thì data là undefined, rơi xuống nhánh
+     dưới và báo "Chưa có khách hàng nào" — chủ tiệm có 500 khách lại
+     tưởng mất sạch dữ liệu. Phải tách lỗi ra trước. */
+  if (khachHang.isError) {
+    return (
+      <div>
+        <PageHeader tieuDe="Hồ sơ số đo" />
+        <Card>
+          <BaoLoi loi={khachHang.error} thuLai={() => void khachHang.refetch()} />
         </Card>
       </div>
     )

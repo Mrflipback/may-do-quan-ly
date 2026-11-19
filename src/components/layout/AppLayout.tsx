@@ -5,6 +5,7 @@ import { Topbar } from './Topbar'
 import { useAuth } from '@/auth/AuthProvider'
 import { useCaiDat } from '@/data/heThong'
 import { DangTaiToanTrang } from '@/components/BaoVe'
+import { BienGioiLoi } from '@/components/BienGioiLoi'
 import { KhoaManHinh } from '@/components/KhoaManHinh'
 import { useThongBao } from '@/components/ui/ThongBao'
 import { chanDevTools } from '@/lib/chanDevTools'
@@ -54,7 +55,12 @@ export function AppLayout() {
         {/* key doi theo duong dan -> React ve lai -> hieu ung chay lai
             moi lan chuyen sang trang khac */}
         <main key={viTri.pathname} className="hieu-ung flex-1 px-4 py-5 sm:px-6 sm:py-6">
-          <Outlet />
+          {/* Lưới hứng riêng cho từng trang: một trang vỡ thì thanh bên và
+              menu vẫn còn, người dùng bấm sang trang khác là làm việc tiếp
+              được, không mất cả phiên làm việc. */}
+          <BienGioiLoi boiCanh={`Trang ${viTri.pathname}`} khoaReset={viTri.pathname}>
+            <Outlet />
+          </BienGioiLoi>
         </main>
         <footer className="no-print border-t border-slate-200 px-4 py-4 text-center text-xs text-slate-400 sm:px-6">
           {tenTiem} · Phần mềm quản lý tiệm may đo

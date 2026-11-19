@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
+import { nhanThoiGianTenFile } from '@/lib/utils'
 import { KHOA, queryClient } from './chung'
 import type { KetQuaMatKhau } from '@/lib/matKhauXoa'
 
@@ -194,7 +195,7 @@ export async function taiBanChup(b: BanChup): Promise<void> {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  const ngay = new Date(b.thoi_diem).toISOString().slice(0, 19).replace(/[:T]/g, '-')
+  const ngay = nhanThoiGianTenFile(new Date(b.thoi_diem))
   a.download = `ban-chup-khan-${ngay}.json`
   document.body.appendChild(a)
   a.click()

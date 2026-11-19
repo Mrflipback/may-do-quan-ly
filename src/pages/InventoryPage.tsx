@@ -10,7 +10,7 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { Input, Select, Textarea } from '@/components/ui/Field'
 import { BaoLoi, DangTaiBang } from '@/components/ui/TrangThaiTai'
 import { HopThoaiXacNhan, useThongBao } from '@/components/ui/ThongBao'
-import { cn, dinhDangSo, dinhDangTien } from '@/lib/utils'
+import { cn, dinhDangSo, dinhDangTien, ngayHomNay } from '@/lib/utils'
 import { dichLoi } from '@/lib/loi'
 import { useAuth } from '@/auth/AuthProvider'
 import { useDanhSachVatTu, useGhiGiaoDichKho, useLuuVatTu, useXoaVatTu } from '@/data/kho'
@@ -514,7 +514,7 @@ function FormGiaoDich({
   const ghi = useGhiGiaoDichKho()
   const [soLuong, setSoLuong] = useState('')
   const [donGia, setDonGia] = useState('')
-  const [ngay, setNgay] = useState(new Date().toISOString().slice(0, 10))
+  const [ngay, setNgay] = useState(ngayHomNay())
   const [ghiChu, setGhiChu] = useState('')
 
   const laNhap = giaoDich?.loai === 'nhap'
@@ -523,7 +523,7 @@ function FormGiaoDich({
     if (!giaoDich) return
     setSoLuong('')
     setDonGia(String(Number(giaoDich.vt.gia_nhap) || 0))
-    setNgay(new Date().toISOString().slice(0, 10))
+    setNgay(ngayHomNay())
     setGhiChu('')
   }, [giaoDich])
 

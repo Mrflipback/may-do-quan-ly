@@ -43,6 +43,59 @@ export function dinhDangNgayGio(ngay: string | Date | null | undefined): string 
   }).format(d)
 }
 
+/* ------------------------------------------------------------------ */
+/*  Ngày theo giờ địa phương                                           */
+/*                                                                      */
+/*  TUYỆT ĐỐI KHÔNG dùng new Date().toISOString().slice(0, 10) để lấy   */
+/*  "hôm nay". Hàm toISOString() trả về giờ quốc tế UTC, mà Việt Nam    */
+/*  sớm hơn 7 tiếng. Nên từ 00:00 đến 06:59 giờ Việt Nam, nó cho ra     */
+/*  NGÀY HÔM TRƯỚC: tiền thu lúc rạng sáng bị ghi vào sổ ngày hôm qua   */
+/*  (ngày có thể đã chốt sổ rồi), ngày giao hàng ghi sai, và báo cáo    */
+/*  bỏ sót cả ngày hôm nay.                                            */
+/* ------------------------------------------------------------------ */
+
+/** Một ngày bất kỳ theo giờ máy, dạng "2026-11-19". */
+export function ngayDiaPhuong(d: Date = new Date()): string {
+  const hai = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${hai(d.getMonth() + 1)}-${hai(d.getDate())}`
+}
+
+/** Hôm nay theo giờ máy, dạng "2026-11-19". */
+export function ngayHomNay(): string {
+  return ngayDiaPhuong(new Date())
+}
+
+/**
+ * Hôm nay cộng/trừ n ngày, theo giờ máy.
+ * Dùng setDate() nên tự nhảy đúng qua đầu tháng và năm nhuận.
+ */
+export function ngayCongThem(soNgay: number, tuNgay: Date = new Date()): string {
+  const d = new Date(tuNgay)
+  d.setDate(d.getDate() + soNgay)
+  return ngayDiaPhuong(d)
+}
+
+/**
+ * Mốc thời gian đầu ngày / cuối ngày theo giờ máy, đổi sang chuỗi UTC
+ * để so sánh với cột timestamptz trong cơ sở dữ liệu.
+ *
+ * Chuỗi "2026-11-17T00:00:00" gửi thẳng xuống Postgres sẽ bị hiểu theo
+ * múi giờ của máy chủ (Supabase để UTC), tức là lệch 7 tiếng.
+ */
+export function mocDauNgay(ngay: string): string {
+  return new Date(`${ngay}T00:00:00`).toISOString()
+}
+
+export function mocCuoiNgay(ngay: string): string {
+  return new Date(`${ngay}T23:59:59.999`).toISOString()
+}
+
+/** Nhãn thời gian đặt tên file, theo giờ máy: "2026-11-19-22-20-05". */
+export function nhanThoiGianTenFile(d: Date = new Date()): string {
+  const hai = (n: number) => String(n).padStart(2, '0')
+  return `${ngayDiaPhuong(d)}-${hai(d.getHours())}-${hai(d.getMinutes())}-${hai(d.getSeconds())}`
+}
+
 /** Số ngày còn lại tới hạn giao. Số âm nghĩa là đã trễ hẹn. */
 export function soNgayConLai(ngayHen: string): number {
   const hen = new Date(ngayHen)

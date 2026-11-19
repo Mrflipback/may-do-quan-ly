@@ -68,7 +68,14 @@
     "lhChuaDiaChi": "The owner enters the address under Settings.",
     "lhChuaGio": "The owner enters opening hours under Settings.",
     "lhCuoi": "{ten} — call us or drop in, we will measure you.",
-    "nutGoi": "Call the shop"
+    "nutGoi": "Call the shop",
+    "menuMau": "Our work",
+    "mauKicker": "Gallery",
+    "mauTieuDe": "Some pieces we have tailored",
+    "mauMoTa": "Photographed at the shop. Tap a photo to see it larger.",
+    "mauXemTo": "View larger",
+    "mauDong": "Close",
+    "mauTrong": "No sample photos yet."
   },
   "trangThai": {
     "moi": "New",

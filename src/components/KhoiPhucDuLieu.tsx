@@ -9,7 +9,7 @@ import {
 } from 'lucide-react'
 import { Card, CardBody, CardHeader } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { HopThoaiXacNhan, useThongBao } from '@/components/ui/ThongBao'
+import { useThongBao } from '@/components/ui/ThongBao'
 import { HopThoaiXoaCanMatKhau } from '@/components/MatKhauXoa'
 import { kiemMatKhauXoa, useMatKhauXoa } from '@/data/matKhauXoa'
 import { cauLoi } from '@/lib/matKhauXoa'
@@ -90,16 +90,18 @@ export function KhoiPhucDuLieu() {
     setTienDo({ buoc: 'Đang chuẩn bị…', phanTram: 0 })
 
     try {
-      // Kiểu xoá sạch: hỏi máy chủ mật khẩu đúng chưa, TRƯỚC khi làm gì
-      // khác. Gõ sai thì dừng ngay tại đây: không tải file nào về máy,
-      // không đụng một dòng dữ liệu nào, hộp thoại vẫn mở cho gõ lại.
-      if (xoaTruoc) {
-        setTienDo({ buoc: 'Đang kiểm mật khẩu xoá…', phanTram: 1 })
-        const cua = await kiemMatKhauXoa(matKhau)
-        if (!cua.ok) {
-          setLoiMatKhau(cauLoi(cua))
-          return
-        }
+      // Hỏi máy chủ mật khẩu đúng chưa, TRƯỚC khi làm gì khác. Gõ sai thì
+      // dừng ngay tại đây: không tải file nào về máy, không đụng một dòng
+      // dữ liệu nào, hộp thoại vẫn mở cho gõ lại.
+      //
+      // Cả HAI đường (xoá sạch rồi nạp, và nạp thêm) đều phải qua cửa này.
+      // Đường "nạp thêm" tuy không xoá gì nhưng vẫn ghi đè được bảng
+      // nguoi_dung và cai_dat từ một file người dùng cầm trên tay.
+      setTienDo({ buoc: 'Đang kiểm mật khẩu xoá…', phanTram: 1 })
+      const cua = await kiemMatKhauXoa(matKhau)
+      if (!cua.ok) {
+        setLoiMatKhau(cauLoi(cua))
+        return
       }
 
       // Lưới an toàn: cất bản hiện tại xuống máy trước khi đụng vào gì
@@ -376,19 +378,30 @@ export function KhoiPhucDuLieu() {
         )}
       </CardBody>
 
-      {/* Hỏi lại: nạp thêm */}
-      <HopThoaiXacNhan
+      {/* Hỏi lại: nạp thêm — CŨNG phải gõ mật khẩu.
+          Trước đây đường này chỉ có một hộp xác nhận thường, trong khi nó
+          ghi đè được cả bảng nguoi_dung (có cột vai_tro) lẫn bảng cai_dat.
+          Tức là ai ngồi vào máy đang mở sẵn chỉ cần hai cú bấm là nâng
+          quyền cho một tài khoản bất kỳ — đi vòng hẳn qua mật khẩu xoá.
+          Giờ hai đường đều qua cùng một cửa. */}
+      <HopThoaiXoaCanMatKhau
         moRa={hoiNapThem}
         tieuDe="Nạp dữ liệu từ bản sao lưu?"
         noiDung={
           soi
             ? `${dinhDangSo(soi.tongDong)} dòng sẽ được nạp vào tiệm. Dữ liệu đang có vẫn giữ nguyên; ` +
-              'dòng nào trùng mã với dòng trong file thì sẽ lấy theo file. Việc này không huỷ được.'
+              'dòng nào trùng mã với dòng trong file thì sẽ lấy theo file.'
             : ''
         }
+        canhBao="Việc này KHÔNG huỷ lại được. File sao lưu có thể ghi đè cả phân quyền tài khoản và cài đặt tiệm, nên phải gõ mật khẩu xoá."
         nhanDongY="Nạp dữ liệu"
-        dongY={() => void chay('')}
-        huy={() => setHoiNapThem(false)}
+        daDatMatKhau={matKhauXoa.daDat}
+        loiMayChu={loiMatKhau}
+        dongY={(mk) => void chay(mk)}
+        huy={() => {
+          setHoiNapThem(false)
+          setLoiMatKhau('')
+        }}
       />
 
       {/* Hỏi lại: xoá sạch rồi nạp — phải gõ mật khẩu */}

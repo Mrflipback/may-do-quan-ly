@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { App } from './App'
+import { BienGioiLoi } from '@/components/BienGioiLoi'
 import './index.css'
 import { khoiDongGiaoDien } from '@/lib/giaoDien'
 import { NhaCungCapNgonNgu, chuanBiNgonNgu } from '@/i18n'
@@ -23,8 +24,10 @@ const banDau = await chuanBiNgonNgu()
 
 createRoot(goc).render(
   <StrictMode>
-    <NhaCungCapNgonNgu banDau={banDau}>
-      <App />
-    </NhaCungCapNgonNgu>
+    <BienGioiLoi boiCanh="Toàn phần mềm">
+      <NhaCungCapNgonNgu banDau={banDau}>
+        <App />
+      </NhaCungCapNgonNgu>
+    </BienGioiLoi>
   </StrictMode>,
 )

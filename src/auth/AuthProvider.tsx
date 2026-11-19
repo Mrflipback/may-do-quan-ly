@@ -9,6 +9,7 @@ import {
 } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { DA_CAU_HINH, supabase } from '@/lib/supabase'
+import { queryClient } from '@/data/chung'
 import { dichLoi, ghiLoi } from '@/lib/loi'
 import type { NguoiDung } from '@/types'
 
@@ -135,6 +136,13 @@ export function NhaCungCapAuth({ children }: { children: ReactNode }) {
     if (error) throw new Error(dichLoi(error))
     setHoSo(null)
     setPhien(null)
+
+    // Dọn sạch bộ nhớ đệm của người vừa ra.
+    // Phần mềm là một trang duy nhất, đăng xuất rồi đăng nhập người khác
+    // KHÔNG tải lại trang. Không dọn thì màn hình sẽ vẽ lại ngay dữ liệu
+    // cũ còn trong bộ nhớ (khách hàng, đơn hàng, tiền nong) trước khi kịp
+    // hỏi lại máy chủ — mà staleTime đang là 30 giây.
+    queryClient.clear()
   }, [])
 
   const quenMatKhau = useCallback(async (email: string) => {

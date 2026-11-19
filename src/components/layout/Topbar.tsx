@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { ChevronDown, LogOut, Menu, Monitor, Moon, Palette, Search, Settings, Sun } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
-import { chuCaiDau } from '@/lib/utils'
+import { AnhDaiDien, ChonAnhDaiDien } from '@/components/AnhDaiDien'
+import { useSuaHoSoCuaToi } from '@/data/heThong'
 import { NHAN_VAI_TRO } from '@/lib/constants'
 import { useAuth } from '@/auth/AuthProvider'
 import { useThongBao } from '@/components/ui/ThongBao'
@@ -28,7 +29,8 @@ export function Topbar({ nguoiDung, moMenu }: TopbarProps) {
   const [tuKhoa, setTuKhoa] = useState('')
   const vungTaiKhoan = useRef<HTMLDivElement>(null)
   const dieuHuong = useNavigate()
-  const { dangXuat, laQuanTri } = useAuth()
+  const { dangXuat, laQuanTri, taiLaiHoSo } = useAuth()
+  const doiAnh = useSuaHoSoCuaToi()
   const { t: dich } = useT()
   const { cai, doiCheDo } = useGiaoDien()
   const { NHAN_GIAO_DIEN } = useNhanGiaoDien()
@@ -111,9 +113,7 @@ export function Topbar({ nguoiDung, moMenu }: TopbarProps) {
           aria-haspopup="menu"
           className="flex items-center gap-2 rounded-lg p-1.5 transition-colors hover:bg-slate-100"
         >
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand-700 text-xs font-bold text-white">
-            {chuCaiDau(nguoiDung.ho_ten)}
-          </span>
+          <AnhDaiDien hoTen={nguoiDung.ho_ten} ma={nguoiDung.anh_dai_dien} />
           <span className="hidden text-left leading-tight sm:block">
             <span className="block text-sm font-semibold text-slate-800">{nguoiDung.ho_ten}</span>
             <span className="block text-[11px] text-slate-500">
@@ -129,11 +129,35 @@ export function Topbar({ nguoiDung, moMenu }: TopbarProps) {
             className="absolute right-0 mt-2 w-60 overflow-hidden rounded-xl bg-paper py-1.5 ring-1 ring-slate-200 shadow-lg"
           >
             <div className="border-b border-slate-100 px-4 py-2.5">
-              <p className="truncate text-sm font-semibold text-slate-800">{nguoiDung.ho_ten}</p>
-              <p className="truncate text-xs text-slate-500">{nguoiDung.email}</p>
-              <p className="mt-1 text-[11px] font-medium text-brand-700">
-                {NHAN_VAI_TRO[nguoiDung.vai_tro]}
-              </p>
+              <div className="flex items-center gap-2.5">
+                <AnhDaiDien hoTen={nguoiDung.ho_ten} ma={nguoiDung.anh_dai_dien} lopCo="size-10" />
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-slate-800">
+                    {nguoiDung.ho_ten}
+                  </p>
+                  <p className="truncate text-xs text-slate-500">{nguoiDung.email}</p>
+                  <p className="mt-0.5 text-[11px] font-medium text-brand-700">
+                    {NHAN_VAI_TRO[nguoiDung.vai_tro]}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-b border-slate-100 px-4 py-2.5">
+              <p className="mb-1.5 text-[11px] font-medium text-slate-400">Ảnh đại diện</p>
+              <ChonAnhDaiDien
+                maDangChon={nguoiDung.anh_dai_dien}
+                dangLuu={doiAnh.isPending}
+                chon={(ma) => {
+                  doiAnh.mutate(
+                    { id: nguoiDung.id, anh_dai_dien: ma },
+                    {
+                      onSuccess: () => void taiLaiHoSo(),
+                      onError: (e) => tb.loi(dichLoi(e)),
+                    },
+                  )
+                }}
+              />
             </div>
 
             <div className="border-b border-slate-100 px-4 py-2">

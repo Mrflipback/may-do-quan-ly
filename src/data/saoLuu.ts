@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { nhanThoiGianTenFile } from '@/lib/utils'
 import { dichLoi } from '@/lib/loi'
 import { cauLoi, type KetQuaMatKhau } from '@/lib/matKhauXoa'
 
@@ -94,7 +95,7 @@ export interface GoiSaoLuu {
  */
 export async function taiBanSaoLuu(): Promise<{ tenFile: string; soDong: number }> {
   const goi = await gomDuLieu()
-  const nhan = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')
+  const nhan = nhanThoiGianTenFile()
   const tenFile = `sao-luu-may-do-${nhan}.json`
   taiVeMay(tenFile, JSON.stringify(goi, null, 2))
   return { tenFile, soDong: goi.so_dong }

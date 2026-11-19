@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/Button'
 import { Input, Select, Textarea } from '@/components/ui/Field'
 import { useThongBao } from '@/components/ui/ThongBao'
 import { NHAN_LOAI_TRANG_PHUC, NHAN_TRANG_THAI } from '@/lib/constants'
-import { dinhDangTien } from '@/lib/utils'
+import { dinhDangTien, ngayCongThem, ngayHomNay } from '@/lib/utils'
 import { dichLoi } from '@/lib/loi'
 import { useKhachHangRutGon } from '@/data/khachHang'
 import { useDanhSachSoDo } from '@/data/soDo'
@@ -18,9 +18,9 @@ import type {
   TrangThaiDonHang,
 } from '@/types'
 
-const HOM_NAY = () => new Date().toISOString().slice(0, 10)
+const HOM_NAY = () => ngayHomNay()
 const SAU_14_NGAY = () =>
-  new Date(Date.now() + 14 * 86_400_000).toISOString().slice(0, 10)
+  ngayCongThem(14)
 
 const DONG_RONG = (): DongSanPhamNhap => ({
   ten_san_pham: '',

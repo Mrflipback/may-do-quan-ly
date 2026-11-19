@@ -58,7 +58,7 @@ import type { NhatKy, VaiTro } from '@/types'
 function ngayISO(lui = 0): string {
   const d = new Date()
   d.setDate(d.getDate() - lui)
-  return d.toISOString().slice(0, 10)
+  return ngayDiaPhuong(d)
 }
 
 function gioPhut(iso: string): string {

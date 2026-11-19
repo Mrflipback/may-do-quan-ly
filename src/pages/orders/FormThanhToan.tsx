@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/Button'
 import { Input, Select, Textarea } from '@/components/ui/Field'
 import { useThongBao } from '@/components/ui/ThongBao'
 import { NHAN_HINH_THUC_TT } from '@/lib/constants'
-import { dinhDangTien } from '@/lib/utils'
+import { dinhDangTien, ngayHomNay } from '@/lib/utils'
 import { dichLoi } from '@/lib/loi'
 import { useGhiThanhToan } from '@/data/thanhToan'
 import type { DonHangDayDu, HinhThucThanhToan } from '@/types'
@@ -21,7 +21,7 @@ export function FormThanhToan({ don, dong }: Props) {
   const [soTien, setSoTien] = useState('')
   const [hinhThuc, setHinhThuc] = useState<HinhThucThanhToan>('tien_mat')
   const [laCoc, setLaCoc] = useState(false)
-  const [ngay, setNgay] = useState(new Date().toISOString().slice(0, 10))
+  const [ngay, setNgay] = useState(ngayHomNay())
   const [ghiChu, setGhiChu] = useState('')
 
   const conLai = Number(don?.con_lai ?? 0)
@@ -32,7 +32,7 @@ export function FormThanhToan({ don, dong }: Props) {
     setSoTien(String(Math.max(0, conLai)))
     setHinhThuc('tien_mat')
     setLaCoc(daTra === 0)
-    setNgay(new Date().toISOString().slice(0, 10))
+    setNgay(ngayHomNay())
     setGhiChu('')
   }, [don, conLai, daTra])
 

@@ -116,8 +116,22 @@ export function useDoiVaiTro() {
 
 export function useSuaHoSoCuaToi() {
   return useMutation({
-    mutationFn: async ({ id, ho_ten }: { id: string; ho_ten: string }): Promise<void> => {
-      const { error } = await supabase.from('nguoi_dung').update({ ho_ten }).eq('id', id)
+    mutationFn: async ({
+      id,
+      ho_ten,
+      anh_dai_dien,
+    }: {
+      id: string
+      ho_ten?: string
+      /** Mã ảnh trong src/data/anhMau.ts, hoặc null để quay về chữ cái đầu tên. */
+      anh_dai_dien?: string | null
+    }): Promise<void> => {
+      const thayDoi: Record<string, unknown> = {}
+      if (ho_ten !== undefined) thayDoi.ho_ten = ho_ten
+      if (anh_dai_dien !== undefined) thayDoi.anh_dai_dien = anh_dai_dien
+      if (Object.keys(thayDoi).length === 0) return
+
+      const { error } = await supabase.from('nguoi_dung').update(thayDoi).eq('id', id)
       if (error) throw error
     },
     onSuccess: () => {

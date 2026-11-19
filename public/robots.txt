@@ -17,12 +17,29 @@
 #  Tiệm may là chuyện địa phương. Khách gõ "may đo gần đây" mà không ra
 #  tiệm mình thì mất khách thật. Nên để máy tìm kiếm vào thoải mái.
 # ---------------------------------------------------------------------
+# LƯU Ý QUAN TRỌNG khi sửa khối này:
+# Theo chuẩn robots.txt, mỗi bot chỉ tuân theo ĐÚNG MỘT khối — khối có
+# tên khớp với nó — và BỎ QUA HOÀN TOÀN khối "User-agent: *" ở cuối file.
+# Nên danh sách Disallow ở khối số 5 KHÔNG áp dụng cho mấy con bot này.
+# Thêm đường dẫn cần giấu thì phải thêm vào CẢ HAI chỗ.
 User-agent: Googlebot
+User-agent: Googlebot-Image
 User-agent: Bingbot
 User-agent: coccocbot-web
 User-agent: DuckDuckBot
 Allow: /
+Allow: /tiem
 Disallow: /dang-nhap
+Disallow: /khach-hang
+Disallow: /so-do
+Disallow: /don-hang
+Disallow: /kho
+Disallow: /thanh-toan
+Disallow: /bao-cao
+Disallow: /nhat-ky
+Disallow: /in-phieu
+Disallow: /cai-dat
+Disallow: /giao-dien
 
 
 # ---------------------------------------------------------------------

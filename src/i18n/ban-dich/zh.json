@@ -67,7 +67,14 @@
     "lhChuaDiaChi": "店主请在设置中填写地址。",
     "lhChuaGio": "店主请在设置中填写营业时间。",
     "lhCuoi": "{ten}——欢迎致电或到店，我们为您量身。",
-    "nutGoi": "致电本店"
+    "nutGoi": "致电本店",
+    "menuMau": "作品",
+    "mauKicker": "图库",
+    "mauTieuDe": "本店部分定制作品",
+    "mauMoTa": "店内实拍。点击图片可放大查看。",
+    "mauXemTo": "查看大图",
+    "mauDong": "关闭",
+    "mauTrong": "暂无样品照片。"
   },
   "trangThai": {
     "moi": "新接单",

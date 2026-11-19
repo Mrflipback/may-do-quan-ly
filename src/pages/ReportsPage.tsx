@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/Field'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { BaoLoi, DangTaiBang } from '@/components/ui/TrangThaiTai'
 import { useThongBao } from '@/components/ui/ThongBao'
-import { cn, dinhDangSo, dinhDangTien } from '@/lib/utils'
+import { cn, dinhDangSo, dinhDangTien, ngayDiaPhuong } from '@/lib/utils'
 import { useBaoCaoDoanhThu, type NhomBaoCao } from '@/data/heThong'
 
 const NHAN_KY: Record<NhomBaoCao, string> = {
@@ -16,15 +16,40 @@ const NHAN_KY: Record<NhomBaoCao, string> = {
   nam: 'Theo năm',
 }
 
-/** Khoảng thời gian mặc định cho từng cách nhóm. */
+/**
+ * Khoảng thời gian mặc định cho từng cách nhóm.
+ *
+ * Hai điều phải giữ đúng ở đây:
+ *
+ * 1. Dùng ngayDiaPhuong(), KHÔNG dùng toISOString(). Nếu không, mở báo
+ *    cáo trước 7 giờ sáng sẽ đặt "Đến ngày" thành hôm qua và bỏ sót
+ *    toàn bộ doanh thu hôm nay mà không báo gì.
+ *
+ * 2. Khi nhóm theo tháng/năm thì mốc bắt đầu phải là NGÀY ĐẦU của kỳ.
+ *    Trước đây lấy "hôm nay trừ 11 tháng" nên mốc rơi vào giữa tháng,
+ *    mà máy chủ lại gom theo date_trunc('month') — kỳ đầu tiên chỉ có
+ *    nửa tháng nhưng vẫn ghi nhãn như một tháng đủ, làm tổng cộng thiếu
+ *    tiền và biểu đồ so sánh sai.
+ *    Dùng new Date(năm, tháng, 1) thay cho setMonth() cũng tránh luôn
+ *    lỗi tràn ngày (31/03 lùi 11 tháng bằng setMonth sẽ nhảy mất tháng).
+ */
 function khoangMacDinh(nhom: NhomBaoCao): { tu: string; den: string } {
   const nay = new Date()
-  const den = nay.toISOString().slice(0, 10)
-  const tu = new Date(nay)
-  if (nhom === 'ngay') tu.setDate(tu.getDate() - 30)
-  else if (nhom === 'thang') tu.setMonth(tu.getMonth() - 11)
-  else tu.setFullYear(tu.getFullYear() - 4)
-  return { tu: tu.toISOString().slice(0, 10), den }
+  const den = ngayDiaPhuong(nay)
+
+  let tu: Date
+  if (nhom === 'ngay') {
+    tu = new Date(nay)
+    tu.setDate(tu.getDate() - 30)
+  } else if (nhom === 'thang') {
+    // Ngày 1 của tháng cách đây 11 tháng -> đủ trọn 12 tháng.
+    tu = new Date(nay.getFullYear(), nay.getMonth() - 11, 1)
+  } else {
+    // Ngày 1 tháng 1 của năm cách đây 4 năm -> đủ trọn 5 năm.
+    tu = new Date(nay.getFullYear() - 4, 0, 1)
+  }
+
+  return { tu: ngayDiaPhuong(tu), den }
 }
 
 export function ReportsPage() {

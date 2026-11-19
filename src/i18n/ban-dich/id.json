@@ -67,7 +67,14 @@
     "lhChuaDiaChi": "Pemilik toko mengisi alamat di menu Pengaturan.",
     "lhChuaGio": "Pemilik toko mengisi jam buka di menu Pengaturan.",
     "lhCuoi": "{ten} — telepon atau mampir, kami akan mengukur badan Anda.",
-    "nutGoi": "Telepon toko"
+    "nutGoi": "Telepon toko",
+    "menuMau": "Hasil jahitan",
+    "mauKicker": "Galeri",
+    "mauTieuDe": "Beberapa hasil jahitan kami",
+    "mauMoTa": "Difoto di toko. Ketuk foto untuk melihat lebih besar.",
+    "mauXemTo": "Lihat lebih besar",
+    "mauDong": "Tutup",
+    "mauTrong": "Belum ada foto contoh."
   },
   "trangThai": {
     "moi": "Baru masuk",

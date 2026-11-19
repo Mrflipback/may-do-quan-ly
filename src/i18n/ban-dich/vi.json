@@ -67,7 +67,14 @@
     "lhChuaDiaChi": "Chủ tiệm điền địa chỉ trong mục Cài đặt.",
     "lhChuaGio": "Chủ tiệm điền giờ mở cửa trong mục Cài đặt.",
     "lhCuoi": "{ten} — gọi hoặc ghé tiệm, chúng tôi sẽ lấy số đo cho bạn.",
-    "nutGoi": "Gọi cho tiệm"
+    "nutGoi": "Gọi cho tiệm",
+    "menuMau": "Mẫu đã may",
+    "mauKicker": "Thư viện",
+    "mauTieuDe": "Một số mẫu tiệm đã may",
+    "mauMoTa": "Ảnh chụp tại tiệm. Bấm vào ảnh để xem lớn hơn.",
+    "mauXemTo": "Xem ảnh lớn",
+    "mauDong": "Đóng",
+    "mauTrong": "Chưa có ảnh mẫu nào."
   },
   "trangThai": {
     "moi": "Mới nhận",
